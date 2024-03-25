@@ -1,0 +1,27 @@
+Come funziona il Transition Based Parser (MALT)?
+Cosa è il task della Refering Expression Generation?
+Spiegare l'uso delle HMM nel PoS Tagging
+Che differenza c'è tra MEMM e HMM?
+Dove si strovano le lingue naturali nella Gerarchia di Chomsky?
+Cosa è una Probabilistic CFG?
+Che cosa è il Realizer nella NLG?
+Cosa è il task della Aggregation?
+Elencare i 5 algoritmi per il parsing delle dipendenze sintattiche
+Quali sono i Task della NLG?
+Spiegare l'uso del formalismo Lambda-FoL per la Semantica Computazionale
+Cosa è la rappresentazione Neo-davidsoniana?
+Quali sono le due ipotesi fondamentali della linguistica computazionale?
+Cosa è la Frame-Based Semantics nei DS?
+Fare un esempio di ambiguità puramente semantica
+Ambiguità sintattica: spiegare i fenomeni del PP attachment e dell'ambiguità della coordinazione nell'ambigità sintattica
+Come funziona l'algoritmo CKY?
+Quale è la complessità dell'algoritmo CKY rispetto alla lunghezza N dell'input?
+Che differenza c'è tra la sintassi formalizzata come dipendenze o come costituenti?
+Che cosa è la misura PARSEVAL?
+Che cosa è un treebank?
+Quali sono le fasi della NLG simbolica?
+HMM è un modello generativo o discriminativo?
+Spiegare cosa si intende per Anatomia di un Parser
+Quali sono i 6 fenomeni notevoli del dialogo tra umani?
+Cosa è il PoS Tagging?
+Cosa è il NER Tagging?
