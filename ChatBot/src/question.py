@@ -1,10 +1,14 @@
 class Question:
-    def __init__(self, text, key_words):
+    def __init__(self, text, keywords, type):
         self.text = text
-        self.key_words = key_words
+        self.keywords = keywords
+        self.type = type
 
     def get_keywords(self):
-        return self.key_words
+        return self.keywords
 
     def get_text(self):
         return self.text
+
+    def get_type(self):
+        return self.type

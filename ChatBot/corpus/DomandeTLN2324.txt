@@ -2,7 +2,7 @@ Come funziona il Transition Based Parser (MALT)?
 Cosa è il task della Refering Expression Generation?
 Spiegare l'uso delle HMM nel PoS Tagging
 Che differenza c'è tra MEMM e HMM?
-Dove si strovano le lingue naturali nella Gerarchia di Chomsky?
+Dove si trovano le lingue naturali nella Gerarchia di Chomsky?
 Cosa è una Probabilistic CFG?
 Che cosa è il Realizer nella NLG?
 Cosa è il task della Aggregation?

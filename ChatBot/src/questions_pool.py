@@ -2,21 +2,25 @@ import question
 
 q1 = question.Question("What are the 6 remarkable phenomena of the human dialogue?",
                        [
-                            "Turns",
-                            "Speech acts",
-                            "Grounding",
-                            "Dialogue structure",
-                            "Initiative",
-                            "Implicature"
-                       ])
-q2 = question.Question("What's a Probabilistic CFG?", ["two"])
-q3 = question.Question("What's the Frame-Based Semantics in DS?", ["three"])
-q4 = question.Question("What's PoS Tagging?", ["four"])
-q5 = question.Question("What's the PARSEVAL measure?", ["five"])
-q6 = question.Question("What are the NLG symbolic phases?", ["six"])
-q7 = question.Question("What's the Refering Expression Generation task", ["seven"])
-q8 = question.Question("How the CKY algorithm works", ["eight"])
+                           "Turns",
+                           "Speech acts",
+                           "Grounding",
+                           "Dialogue structure",
+                           "Initiative",
+                           "Implicature"
+                       ], 3)
+q2 = question.Question("What's a Probabilistic CFG?", ["two"], 2)
+q3 = question.Question("What's the Frame-Based Semantics in DS?", ["three"], 2)
+q4 = question.Question("What's PoS Tagging?", ["four"], 2)
+q5 = question.Question("What's the PARSEVAL measure?", ["five"], 2)
+q6 = question.Question("What are the NLG symbolic phases?", ["six"], 3)
+q7 = question.Question("What's the Refering Expression Generation task?", ["seven"], 2)
+q8 = question.Question("How the CKY algorithm works?", ["eight"], 2)
+q9 = question.Question("HMM model is generative or discriminative?", ["nine"], 1)
 
-#aggiungere key words
+# add keywords
 
 questions = [q1, q2, q3, q4, q5, q6, q7, q8]
+questions_binary = [q9]
+questions_list = [q1, q6]
+questions_open = [q2, q3, q4, q5, q7, q8]
