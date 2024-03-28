@@ -6,8 +6,10 @@ class DependecyParser:
         self.nlp = spacy.load("en_core_web_sm")
         self.doc = self.nlp(text)
 
-
-
+    def get_tokens(self):
+        tokens = set([chunk.text for chunk in self.doc.noun_chunks])
+        # print(tokens)
+        return tokens
 
 # # Load English tokenizer, tagger, parser and NER
 # nlp = spacy.load("en_core_web_sm")
@@ -23,3 +25,7 @@ class DependecyParser:
 # # Find named entities, phrases and concepts
 # for entity in doc.ents:
 #     print(entity.text, entity.label_)
+
+if __name__ == "__main__":
+    keywords_answer = DependecyParser("We're programming a dialogue system able to ask you questions about the exam. This exam is called Natural Language Processing")
+    keywords_answer.get_tokens()

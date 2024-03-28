@@ -15,15 +15,12 @@ class Frame:
             self.complete = True
         return self.complete
 
-    # add correct kewords to the frame and return wrong ones
-    def add_keyword(self, keywords):
+    def add_keyword(self, keyword):
         if self.question is None:
             return False
-        keywords = set(keywords)
-        wrong_keywords = set()
-        for keyword in keywords:
-            if keyword.casefold() in self.question.get_keywords():
-                self.current_keywords.add(keyword.casefold())
-            else:
-                wrong_keywords.add(keyword.casefold())
-        return wrong_keywords
+        if keyword.casefold() in self.question.get_keywords():
+            self.current_keywords.add(keyword.casefold())
+            self.check_frame_complete()
+        else:
+            return False
+        return True

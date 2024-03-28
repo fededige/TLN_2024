@@ -52,24 +52,34 @@ class DialogManager:
         return q
 
     def analyze_user_answer(self, question, answer):
+        keywords_answer = dependecy_parser.DependecyParser(answer)
+        answer_tokens = keywords_answer.get_tokens()
+
+        self.check_answer(answer_tokens)
+
         if question.get_type() == 1:
-            keywords_answer = dependecy_parser.DependecyParser(answer)
-            print([chunk.text for chunk in keywords_answer.doc.noun_chunks])
-            print([token.lemma_ for token in keywords_answer.doc if token.pos_ == "VERB"])
-            for entity in keywords_answer.doc.ents:
-                print(entity.text, entity.label_)
+            print()
         elif question.get_type() == 2:
-            keywords_answer = dependecy_parser.DependecyParser(answer)
-            print([chunk.text for chunk in keywords_answer.doc.noun_chunks])
-            print([token.lemma_ for token in keywords_answer.doc if token.pos_ == "VERB"])
-            for entity in keywords_answer.doc.ents:
-                print(entity.text, entity.label_)
+            print()
         else:
-            keywords_answer = dependecy_parser.DependecyParser(answer)
-            print([chunk.text for chunk in keywords_answer.doc.noun_chunks])
-            print([token.lemma_ for token in keywords_answer.doc if token.pos_ == "VERB"])
-            for entity in keywords_answer.doc.ents:
-                print(entity.text, entity.label_)
+            print()
+
+    def check_answer(self, tokens):
+        new_keyword_count = 0
+        for token in tokens:
+            if self.frame.add_keyword(token):
+                new_keyword_count += 1
+
+                print("Correct token: ", token)
+        if self.frame.check_frame_complete():
+            # correct answer
+            print()
+        elif new_keyword_count > 0:
+            # partially correct answer
+            print()
+        else:
+            # wrong answer
+            print()
 
 
 if __name__ == '__main__':
