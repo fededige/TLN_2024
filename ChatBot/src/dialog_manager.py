@@ -69,7 +69,6 @@ class DialogManager:
         for token in tokens:
             if self.frame.add_keyword(token):
                 new_keyword_count += 1
-
                 print("Correct token: ", token)
         if self.frame.check_frame_complete():
             # correct answer
