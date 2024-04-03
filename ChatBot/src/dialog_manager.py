@@ -2,6 +2,7 @@ import frame
 import random
 import questions_pool
 import dependecy_parser
+import generator
 
 
 class DialogManager:
@@ -66,12 +67,14 @@ class DialogManager:
 
     def check_answer(self, tokens):
         new_keyword_count = 0
+        g = generator.Generator()
         for token in tokens:
             if self.frame.add_keyword(token):
                 new_keyword_count += 1
                 print("Correct token: ", token)
         if self.frame.check_frame_complete():
             # correct answer
+            a = g.generate_answer()
             print()
         elif new_keyword_count > 0:
             # partially correct answer
