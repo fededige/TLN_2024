@@ -33,11 +33,11 @@ class Generator:
         s2 = self.nlgFactory.createSentence(p2)
 
         r = random.random()
-        if r < 0.25:
+        if r < 0.35:
             par1 = self.nlgFactory.createParagraph([s2, s1])
-        elif 0.25 < r < 0.5:
+        elif r < 0.6:
             par1 = self.nlgFactory.createParagraph([s1, s2])
-        elif 0.5 < r < 0.75:
+        elif r < 0.55:
             if negative is None:
                 par1 = self.nlgFactory.createParagraph([s1])
             else:
@@ -58,13 +58,30 @@ class Generator:
 # "You've included a few of the symbolic phases."
 # "You've mentioned some of the tasks involved in NLG."
 
-if __name__ == "__main__":
-    g = Generator()
-    g.generate_answer("say", "the 7 phases", "you", None, "correctly", None, "Well done")
-    g.generate_answer("write", "answer", "you", None, "the correct", None, "Wow")
-    g.generate_answer("say", "phases", "you", None, "some of the", None, "Good job")
-    g.generate_answer("enter", "phases", "you", None, "the correct", None, "Be careful", True)
 
+subjects = ["you"]
+verbs = [
+    "identify",
+    "include",
+    "mention",
+    "say",
+    "write",
+    "specify",
+    "describe",
+    "outline",
+    "state",
+    "indicate",
+    "explain"
+]
+positive_obj_modifiers = [
+    "the correct",
+    "the appropriate",
+    "each of the",
+    "all of the",
+    "every"
+]
+mild_obj_modifiers = ["some of the", "a few of the", "many of the"]
+negative_obj_modifiers = ["none of the", "any of the"]
 comment_list = [
     [
         "Well done",
@@ -73,8 +90,6 @@ comment_list = [
         "Great Job",
         "Brilliant",
         "Excellent response",
-        "Exactly",
-        "Right",
         "Precise"
     ],
     [
@@ -100,3 +115,11 @@ comment_list = [
         "Getting closer"
     ]
 ]
+
+if __name__ == "__main__":
+    g = Generator()
+    g.generate_answer("say", "the 7 phases", "you", None, "correctly", None, "Well done")
+    g.generate_answer("write", "answer", "you", None, "the correct", None, "Wow")
+    g.generate_answer("say", "phases", "you", None, "some of the", None, "Good job")
+    g.generate_answer("enter", "phases", "you", None, "the correct", None, "Be careful", True)
+    g.generate_answer(random.choice(verbs), "phases", "you", None, random.choice(positive_obj_modifiers), None, random.choice(comment_list[0]))
