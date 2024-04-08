@@ -26,7 +26,7 @@ class DialogManager:
                 print("No question")
                 return
             self.frame.add_question(question)
-            self.print_danny(question)
+            self.print_danny(question.get_text())
 
             answer = input("User: ")
             
@@ -34,8 +34,8 @@ class DialogManager:
             self.num_questions += 1
         return
 
-    def print_danny(self, question):
-        print("Prof. Danny: ", question.get_text())
+    def print_danny(self, text):
+        print("Prof. Danny: ", text)
 
     def generate_question(self):
         if len(self.memory_questions) == len(questions_pool.questions):
@@ -53,10 +53,10 @@ class DialogManager:
         return q
 
     def analyze_user_answer(self, question, answer):
-        keywords_answer = dependecy_parser.DependecyParser(answer)
-        answer_tokens = keywords_answer.get_tokens()
+        parser_answer = dependecy_parser.DependecyParser(answer)
+        answer_tokens = parser_answer.get_tokens()
 
-        self.check_answer(answer_tokens)
+        self.check_answer(answer_tokens, question)
 
         if question.get_type() == 1:
             print()
@@ -65,23 +65,30 @@ class DialogManager:
         else:
             print()
 
-    def check_answer(self, tokens):
+    def check_answer(self, tokens, question):
         new_keyword_count = 0
         g = generator.Generator()
+        print(tokens)
         for token in tokens:
+            print("token: ", token)
             if self.frame.add_keyword(token):
                 new_keyword_count += 1
                 print("Correct token: ", token)
+
+        parser_question = dependecy_parser.DependecyParser(question.get_text())
+        question_topic = parser_question.get_topic()
         if self.frame.check_frame_complete():
             # correct answer
-            a = g.generate_answer()
-            print()
+            a = g.generate_answer(question_topic, "positive")
+            self.print_danny(a)
         elif new_keyword_count > 0:
             # partially correct answer
-            print()
+            a = g.generate_answer(question_topic, "mild")
+            self.print_danny(a)
         else:
             # wrong answer
-            print()
+            a = g.generate_answer(question_topic, "negative")
+            self.print_danny(a)
 
 
 if __name__ == '__main__':

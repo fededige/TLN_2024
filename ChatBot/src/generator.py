@@ -9,7 +9,8 @@ class Generator:
         self.nlgFactory = simplenlg.NLGFactory(self.lexicon)
         self.realiser = simplenlg.Realiser(self.lexicon)
 
-    def generate_answer(self, verb, obj, subj, sbj_modifier, obj_modifier, verb_modifier, comment, negative=None):
+    def generate_answer_with_params(self, verb, obj, subj, sbj_modifier, obj_modifier, verb_modifier, comment,
+                                    negative=None):
         p = self.nlgFactory.createClause()
         if sbj_modifier is not None:
             subj = self.nlgFactory.createNounPhrase(subj)
@@ -49,17 +50,27 @@ class Generator:
                 par1 = self.nlgFactory.createParagraph([s1, s2])
 
         output = self.realiser.realise(par1).getRealisation()
-        print(output)
+        # print(output)
         return output
 
+    def generate_answer(self, topic, positivity):
+        answer = ""
+        if positivity == "positive":
+            answer = self.generate_answer_with_params(random.choice(verbs), topic, subject, None,
+                                                      random.choice(positive_obj_modifiers), None,
+                                                      random.choice(comment_list[0]))
+        elif positivity == "negative":
+            answer = self.generate_answer_with_params(random.choice(verbs), topic, subject, None,
+                                                      random.choice(negative_obj_modifiers), None,
+                                                      random.choice(comment_list[1]))
+        elif positivity == "mild":
+            answer = self.generate_answer_with_params(random.choice(verbs), topic, subject, None,
+                                                      random.choice(mild_obj_modifiers), None,
+                                                      random.choice(comment_list[2]))
+        return answer
 
-# "You've mentioned several of the key phenomena."
-# "You've identified some important aspects of human dialogue."
-# "You've included a few of the symbolic phases."
-# "You've mentioned some of the tasks involved in NLG."
 
-
-subjects = ["you"]
+subject = "you"
 verbs = [
     "identify",
     "include",
@@ -118,8 +129,9 @@ comment_list = [
 
 if __name__ == "__main__":
     g = Generator()
-    g.generate_answer("say", "the 7 phases", "you", None, "correctly", None, "Well done")
-    g.generate_answer("write", "answer", "you", None, "the correct", None, "Wow")
-    g.generate_answer("say", "phases", "you", None, "some of the", None, "Good job")
-    g.generate_answer("enter", "phases", "you", None, "the correct", None, "Be careful", True)
-    g.generate_answer(random.choice(verbs), "phases", "you", None, random.choice(positive_obj_modifiers), None, random.choice(comment_list[0]))
+    g.generate_answer_with_params("say", "the 7 phases", "you", None, "correctly", None, "Well done")
+    g.generate_answer_with_params("write", "answer", "you", None, "the correct", None, "Wow")
+    g.generate_answer_with_params("say", "phases", "you", None, "some of the", None, "Good job")
+    g.generate_answer_with_params("enter", "phases", "you", None, "the correct", None, "Be careful", True)
+    g.generate_answer_with_params(random.choice(verbs), "NLG symbolic phases", "you", None,
+                                  random.choice(positive_obj_modifiers), None, random.choice(comment_list[0]))

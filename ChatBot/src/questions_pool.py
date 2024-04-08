@@ -9,12 +9,12 @@ q1 = question.Question("What are the 6 remarkable phenomena of the human dialogu
                            "Initiative",
                            "Implicature"
                        ], 3)
-q2 = question.Question("What's a Probabilistic CFG?", ["two"], 2)
-q3 = question.Question("What's the Frame-Based Semantics in DS?", ["three"], 2)
-q4 = question.Question("What's PoS Tagging?", ["four"], 2)
-q5 = question.Question("What's the PARSEVAL measure?", ["five"], 2)
+q2 = question.Question("What is a Probabilistic CFG?", ["two"], 2)
+q3 = question.Question("What is the Frame-Based Semantics in DS?", ["three"], 2)
+q4 = question.Question("What is PoS Tagging?", ["four"], 2)
+q5 = question.Question("What is the PARSEVAL measure?", ["five"], 2)
 q6 = question.Question("What are the NLG symbolic phases?", ["six"], 3)
-q7 = question.Question("What's the Refering Expression Generation task?", ["seven"], 2)
+q7 = question.Question("What is the Refering Expression Generation task?", ["seven"], 2)
 q8 = question.Question("How the CKY algorithm works?", ["eight"], 2)
 q9 = question.Question("HMM model is generative or discriminative?", ["nine"], 1)
 

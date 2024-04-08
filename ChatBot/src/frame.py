@@ -18,8 +18,9 @@ class Frame:
     def add_keyword(self, keyword):
         if self.question is None:
             return False
+        print("correct keywords: ", self.question.get_keywords())
         if keyword.casefold() in self.question.get_keywords():
-            self.current_keywords.add(keyword.casefold())
+            self.current_keywords.add(keyword.lower())
             self.check_frame_complete()
         else:
             return False
