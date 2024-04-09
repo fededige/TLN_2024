@@ -2,3 +2,5 @@ Note sul funzionamento di spacy
 
 What is PoS Tagging? --> get_topic() in questa frase non trova l'argomento giusto.
                          Prende solo Tagging lasciando fuori PoS
+
+Scrivere commento finale che calcola il voto (inserire delay o altro...)

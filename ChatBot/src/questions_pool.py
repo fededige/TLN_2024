@@ -11,7 +11,7 @@ q1 = question.Question("What are the 6 remarkable phenomena of the human dialogu
                        ], 3)
 q2 = question.Question("What is a Probabilistic CFG?", ["two"], 2)
 q3 = question.Question("What is the Frame-Based Semantics in DS?", ["three"], 2)
-q4 = question.Question("What is PoS Tagging?", ["four"], 2)
+q4 = question.Question("What is POS Tagging?", ["four"], 2)
 q5 = question.Question("What is the PARSEVAL measure?", ["five"], 2)
 q6 = question.Question("What are the NLG symbolic phases?", ["six"], 3)
 q7 = question.Question("What is the Refering Expression Generation task?", ["seven"], 2)

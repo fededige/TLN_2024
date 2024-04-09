@@ -15,7 +15,7 @@ class DialogManager:
 
     def greetings(self):
         text = "Welcome to TLN exam. I will ask you some questions about the first part of TLN course. Let's start!"
-        print("Prof. Danny: ", text)
+        self.print_danny(text)
 
     def exam(self):
         self.greetings()
@@ -58,36 +58,29 @@ class DialogManager:
 
         self.check_answer(answer_tokens, question)
 
-        if question.get_type() == 1:
-            print()
-        elif question.get_type() == 2:
-            print()
-        else:
-            print()
+        # if question.get_type() == 1:
+        #     print()
+        # elif question.get_type() == 2:
+        #     print()
+        # else:
+        #     print()
 
     def check_answer(self, tokens, question):
         new_keyword_count = 0
         g = generator.Generator()
-        print(tokens)
         for token in tokens:
-            print("token: ", token)
             if self.frame.add_keyword(token):
                 new_keyword_count += 1
-                print("Correct token: ", token)
-
         parser_question = dependecy_parser.DependecyParser(question.get_text())
         question_topic = parser_question.get_topic()
         if self.frame.check_frame_complete():
-            # correct answer
-            a = g.generate_answer(question_topic, "positive")
+            a = g.generate_answer(question_topic, "positive", question.get_type())
             self.print_danny(a)
         elif new_keyword_count > 0:
-            # partially correct answer
-            a = g.generate_answer(question_topic, "mild")
+            a = g.generate_answer(question_topic, "mild", question.get_type())
             self.print_danny(a)
         else:
-            # wrong answer
-            a = g.generate_answer(question_topic, "negative")
+            a = g.generate_answer(question_topic, "negative", question.get_type())
             self.print_danny(a)
 
 
