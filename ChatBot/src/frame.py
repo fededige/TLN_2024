@@ -23,6 +23,6 @@ class Frame:
         if keyword.lower() in [x.lower() for x in self.question.get_keywords()]:
             self.current_keywords.add(keyword.lower())
             self.check_frame_complete()
+            return True
         else:
             return False
-        return True

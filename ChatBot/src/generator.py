@@ -1,6 +1,6 @@
 import random
-
 import simplenlg
+from sentences_pool import *
 
 
 class Generator:
@@ -81,71 +81,9 @@ class Generator:
                                                           random.choice(comment_list[2]))
         return answer
 
+    def generate_result(self, score, positivity):
+        pass
 
-subject = "you"
-verbs_second_type = ["understand", "know", "get"]
-obj_second_type = ["response", "answer"]
-mild_verbs_second_type = ["answer", "provide", "give", "supply", "present"]
-mild_obj_modifiers_second_type = ["an incomplete", "a partial", "a lacking", "a limited"]
-obj_modifiers_second_type = [
-    "the topic of",
-    "the concept of",
-    "the subject of",
-    ""
-]
-verbs_first_type = [
-    "identify",
-    "include",
-    "mention",
-    "say",
-    "write",
-    "specify",
-    "describe",
-    "outline",
-    "state",
-    "indicate",
-    "explain"
-]
-positive_obj_modifiers = [
-    "the correct",
-    "the appropriate",
-    "each of the",
-    "all of the",
-    "every"
-]
-mild_obj_modifiers = ["some of the", "a few of the", "many of the"]
-negative_obj_modifiers = ["none of the", "any of the"]
-comment_list = [
-    [
-        "Well done",
-        "Correct",
-        "Excellent response",
-        "Great Job",
-        "Brilliant",
-        "Excellent response",
-        "Precise"
-    ],
-    [
-        "Incorrect",
-        "Try again",
-        "Wrong answer",
-        "Not correct",
-        "That's not it",
-        "Incorrect response",
-        "Not what we're looking for",
-        "Try a different approach",
-    ],
-    [
-        "Close, but not there yet",
-        "Almost",
-        "You're on the right track",
-        "A good attempt",
-        "Not bad",
-        "Keep trying",
-        "You're getting warmer",
-        "Getting closer"
-    ]
-]
 
 if __name__ == "__main__":
     g = Generator()
@@ -155,3 +93,6 @@ if __name__ == "__main__":
     g.generate_answer_with_params("enter", "phases", "you", None, "the correct", None, "Be careful", True)
     g.generate_answer_with_params(random.choice(verbs_first_type), "NLG symbolic phases", "you", None,
                                   random.choice(positive_obj_modifiers), None, random.choice(comment_list[0]))
+
+verb_final_comment = "is"
+obj_final_comment = ["score", "mark", "grade", "result", "evaluation"]
