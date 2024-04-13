@@ -1,11 +1,10 @@
 import frame
 import random
 import questions_pool
-import dependecy_parser
+import dependency_parser
 import generator
-
-
-
+import time
+import sys
 
 
 class DialogManager:
@@ -15,6 +14,8 @@ class DialogManager:
         self.memory_questions = []
         self.memory_answers = []
         self.frame = frame.Frame()
+        self.g = generator.Generator()
+        self.dependency_parser = dependency_parser.DependencyParser()
 
     def print_danny(self, text):
         print("Prof. Danny: ", text)
@@ -22,6 +23,19 @@ class DialogManager:
     def greetings(self):
         text = "Welcome to TLN exam. I will ask you some questions about the first part of TLN course. Let's start!"
         self.print_danny(text)
+
+    def closing(self, final_comment):
+        sys.stdout.flush()
+        sys.stdout.write("Prof. Danny: Congrats, you finished the exam! Wait for the result")
+        i = 0
+        while i < 3:
+            time.sleep(1.5)
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            i += 1
+        sys.stdout.write("\n")
+        time.sleep(1)
+        self.print_danny(final_comment)
 
     def clean_answer(self, answer):
         answer.strip()
@@ -51,7 +65,11 @@ class DialogManager:
             self.num_questions += 1
 
         final_score = self.compute_score(total_score, total_weight)
-        self.print_danny(f"score: {round(final_score)}")
+        final_comment = self.g.generate_result(round(final_score),
+                                               "extra-positive" if final_score > 27 else (
+                                                   "positive" if final_score > 23 else (
+                                                       "mild" if final_score > 18 else "negative")))
+        self.closing(final_comment)
         return
 
     def generate_question(self):
@@ -70,32 +88,32 @@ class DialogManager:
         return q
 
     def analyze_user_answer(self, question, answer):
-        parser_answer = dependecy_parser.DependecyParser(answer)
-        answer_tokens = parser_answer.get_tokens()
+        self.dependency_parser.set_text(answer)
+        answer_tokens = self.dependency_parser.get_tokens()
 
         return self.check_answer(answer_tokens, question)
 
     def check_answer(self, tokens, question):
         new_keyword_count = 0
-        g = generator.Generator()
-        max_score = 30
+        max_score = 32
         res = 0
         for token in tokens:
             if self.frame.add_keyword(token):
                 new_keyword_count += 1
 
-        parser_question = dependecy_parser.DependecyParser(question.get_text())
-        question_topic = parser_question.get_topic()
+        self.dependency_parser.set_text(question.get_text())
+        question_topic = self.dependency_parser.get_topic()
         if self.frame.check_frame_complete():
-            a = g.generate_answer(question_topic, "positive", question.get_type())
+            a = self.g.generate_answer(question_topic, "positive", question.get_type())
             self.print_danny(a)
             res = max_score
         elif new_keyword_count > 0:
-            a = g.generate_answer(question_topic, "mild", question.get_type())
+            a = self.g.generate_answer(question_topic, "mild", question.get_type())
             self.print_danny(a)
             res = (max_score * new_keyword_count) / len(question.get_keywords())
+
         else:
-            a = g.generate_answer(question_topic, "negative", question.get_type())
+            a = self.g.generate_answer(question_topic, "negative", question.get_type())
             self.print_danny(a)
         return res
 

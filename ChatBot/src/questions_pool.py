@@ -14,7 +14,7 @@ q3 = question.Question("What is the Frame-Based Semantics in DS?", ["three"], 2)
 q4 = question.Question("What is POS Tagging?", ["four"], 2)
 q5 = question.Question("What is the PARSEVAL measure?", ["five"], 2)
 q6 = question.Question("What are the NLG symbolic phases?", ["six"], 3)
-q7 = question.Question("What is the Refering Expression Generation task?", ["seven"], 2)
+q7 = question.Question("What is the Referring Expression Generation task?", ["seven"], 2)
 q8 = question.Question("How the CKY algorithm works?", ["eight"], 2)
 q9 = question.Question("HMM model is generative or discriminative?", ["nine"], 1)
 

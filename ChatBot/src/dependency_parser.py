@@ -1,10 +1,14 @@
 import spacy
 
 
-class DependecyParser:
-    def __init__(self, text):
-        self.text = text
+class DependencyParser:
+    def __init__(self):
+        self.text = ""
         self.nlp = spacy.load("en_core_web_lg")
+        self.doc = None
+
+    def set_text(self, text):
+        self.text = text
         self.doc = self.nlp(text)
 
     def get_tokens(self):
@@ -17,6 +21,7 @@ class DependecyParser:
                     res.add(entity)
         if len(chunks) == 0:
             res = entities.copy()
+        res = self.split_words(res)
         return self.clear_tokens(res)
 
     def clear_tokens(self, tokens):
@@ -27,17 +32,28 @@ class DependecyParser:
                 res.update([word.strip() for word in el.split(',')])
         return res
 
+    def split_words(self, tokens):
+        res = tokens.copy()
+        for el in tokens:
+            if ' ' in el:
+                res.update([word.strip() for word in el.split(' ')])
+        return res
+
     def get_topic(self):
         subjects = []
         sentence = next(self.doc.sents)
+        topic = ""
         for word in sentence:
             if word.dep_ == "nsubj":
                 subjects.append(word)
         for token in self.get_tokens():
             for subject in subjects:
                 if str(subject) in token:
-                    return self.remove_article(token)
-        return None
+                    if len(token) > len(topic):
+                        topic = token
+        if topic == "":
+            return None
+        return self.remove_article(topic)
 
     def remove_article(self, token):
         t = str(token)
@@ -48,5 +64,6 @@ class DependecyParser:
 
 
 if __name__ == "__main__":
-    parser = DependecyParser("Turns, Speech acts, Grounding.")
+    parser = DependencyParser("What is the Referring Expression Generation task?")
     print("test get_tokens(): ", parser.get_tokens())
+    print("test get_topic()(): ", parser.get_topic())
