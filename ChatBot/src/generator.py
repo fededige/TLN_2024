@@ -95,7 +95,6 @@ class Generator:
         comment_clause = self.nlgFactory.createClause(comment)
         comment_sentence = self.nlgFactory.createSentence(comment_clause)
         if score > 18:
-            print(random.choice(obj))
             score_clause = self.nlgFactory.createClause(
                 "Your " + obj + " is " + ("30L" if score > 30 else str(score)))
             score_sentence = self.nlgFactory.createSentence(score_clause)

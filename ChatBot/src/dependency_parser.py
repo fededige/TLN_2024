@@ -65,5 +65,5 @@ class DependencyParser:
 
 if __name__ == "__main__":
     parser = DependencyParser("What is the Referring Expression Generation task?")
-    print("test get_tokens(): ", parser.get_tokens())
-    print("test get_topic()(): ", parser.get_topic())
+    # print("test get_tokens(): ", parser.get_tokens())
+    # print("test get_topic()(): ", parser.get_topic())

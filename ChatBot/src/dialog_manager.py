@@ -18,14 +18,14 @@ class DialogManager:
         self.dependency_parser = dependency_parser.DependencyParser()
 
     def print_danny(self, text):
-        print("Prof. Danny: ", text)
+        text = text.strip()
+        print(f"Prof. Danny: {text}")
 
     def greetings(self):
         text = "Welcome to TLN exam. I will ask you some questions about the first part of TLN course. Let's start!"
         self.print_danny(text)
 
     def closing(self, final_comment):
-        sys.stdout.flush()
         sys.stdout.write("Prof. Danny: Congrats, you finished the exam! Wait for the result")
         i = 0
         while i < 3:
@@ -38,7 +38,7 @@ class DialogManager:
         self.print_danny(final_comment)
 
     def clean_answer(self, answer):
-        answer.strip()
+        answer = answer.strip()
         if answer[len(answer) - 1] != '.':
             answer += '.'
         return answer
@@ -55,7 +55,6 @@ class DialogManager:
         while self.num_questions < 4:
             question = self.generate_question()
             if question is None:
-                print("No question")
                 return
             self.frame.add_question(question)
             self.print_danny(question.get_text())
