@@ -59,7 +59,18 @@ class DialogManager:
             self.frame.add_question(question)
             self.print_danny(question.get_text())
             answer = self.clean_answer(input("User: "))
-            total_score += self.analyze_user_answer(question, answer) * weight[question.get_type() - 1]
+            answer_tokens = self.analyze_user_answer(answer)
+            temp_score, question_complete = self.check_answer(answer_tokens, question)
+            if not question_complete and question.get_type() != 1:
+                self.print_danny(f"Do you want to add something else about {self.dependency_parser.get_topic()}?")
+                answer = self.clean_answer(input("User: "))
+                answer_tokens = self.analyze_user_answer(answer)
+                temp_score += self.check_answer(answer_tokens, question)[0]
+                self.num_questions += 0.5
+            if question_complete:
+                total_score += temp_score * weight[question.get_type() - 1]
+            else:
+                total_score += temp_score * weight[question.get_type() - 1] * 0.85
             total_weight += weight[question.get_type() - 1]
             self.num_questions += 1
 
@@ -77,7 +88,7 @@ class DialogManager:
         rnd = random.randint(0, 100)
         if rnd < 21:
             q = random.choice(questions_pool.questions_binary)
-        elif rnd > 59:
+        elif rnd > 21:
             q = random.choice(questions_pool.questions_list)
         else:
             q = random.choice(questions_pool.questions_open)
@@ -86,35 +97,44 @@ class DialogManager:
         self.memory_questions.append(q)
         return q
 
-    def analyze_user_answer(self, question, answer):
+    def analyze_user_answer(self, answer):
         self.dependency_parser.set_text(answer)
         answer_tokens = self.dependency_parser.get_tokens()
-
-        return self.check_answer(answer_tokens, question)
+        return answer_tokens
 
     def check_answer(self, tokens, question):
         new_keyword_count = 0
         max_score = 32
         res = 0
+        complete = False
+        flag_already_said = False
+        already_said = []
         for token in tokens:
-            if self.frame.add_keyword(token):
+            flag_already_said = self.frame.check_already_said(token)
+            if flag_already_said:
+                already_said.append(token)
+            elif self.frame.add_keyword(token):
                 new_keyword_count += 1
-
         self.dependency_parser.set_text(question.get_text())
         question_topic = self.dependency_parser.get_topic()
+
         if self.frame.check_frame_complete():
             a = self.g.generate_answer(question_topic, "positive", question.get_type())
             self.print_danny(a)
             res = max_score
+            complete = True
         elif new_keyword_count > 0:
             a = self.g.generate_answer(question_topic, "mild", question.get_type())
             self.print_danny(a)
             res = (max_score * new_keyword_count) / len(question.get_keywords())
-
         else:
-            a = self.g.generate_answer(question_topic, "negative", question.get_type())
-            self.print_danny(a)
-        return res
+            if flag_already_said:
+                self.print_danny("You already said all this thing. "
+                                 "You lost your chance, next time try adding something new.")
+            else:
+                a = self.g.generate_answer(question_topic, "negative", question.get_type())
+                self.print_danny(a)
+        return res, complete
 
 
 if __name__ == '__main__':

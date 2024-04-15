@@ -13,8 +13,10 @@ class DependencyParser:
 
     def get_tokens(self):
         chunks = set([chunk.text for chunk in self.doc.noun_chunks])
+        # print(chunks)
         res = chunks.copy()
         entities = set([entity.text for entity in self.doc.ents])
+        # print(entities)
         for chunk in chunks:
             for entity in entities:
                 if chunk not in entity:
@@ -64,6 +66,7 @@ class DependencyParser:
 
 
 if __name__ == "__main__":
-    parser = DependencyParser("What is the Referring Expression Generation task?")
-    # print("test get_tokens(): ", parser.get_tokens())
-    # print("test get_topic()(): ", parser.get_topic())
+    parser = DependencyParser()
+    parser.set_text("3 phenomena are: ")
+    print("test get_tokens(): ", parser.get_tokens())
+    print("test get_topic(): ", parser.get_topic())

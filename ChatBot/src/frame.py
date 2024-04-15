@@ -26,3 +26,6 @@ class Frame:
             return True
         else:
             return False
+
+    def check_already_said(self, keyword):
+        return keyword.lower() in self.current_keywords
