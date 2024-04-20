@@ -1,3 +1,6 @@
+import random as r
+
+
 def count_word_freq(tweets):
     word_frequency = {}
     for tweet in tweets:
@@ -39,31 +42,88 @@ def count_trigram_freq(tweets):
     return trigram_frequency
 
 
+def bigram_mle(word, previous_word):  # word = loser!, previous_word = total. => P("loser!" | "total")
+    freq_first_word = word_freq[previous_word]
+    freq_bigram = bigram_freq[f"{previous_word} {word}"]
+    return freq_bigram / freq_first_word
+
+
+def trigram_mle(word, previous_words):  # word = loser!, previous_word = a total. => P("loser!" | "a total")
+    freq_bigram = bigram_freq_better[previous_words]
+    freq_trigram = trigram_freq[f"{previous_words} {word}"]
+    return freq_trigram / freq_bigram
+
+
+def compute_bigram_probabilities():
+    bigram_probabilities = {}
+    for key in bigram_freq.keys():
+        first_word, second_word = key.split(' ')
+        if first_word not in bigram_probabilities:
+            bigram_probabilities[first_word] = [[second_word, bigram_mle(second_word, first_word)]]
+        else:
+            bigram_probabilities[first_word].append([second_word, bigram_mle(second_word, first_word)])
+    return bigram_probabilities
+
+
+def compute_trigram_probabilities():
+    trigram_probabilities = {}
+    for key in trigram_freq.keys():
+        first_word, second_word, third_word = key.split(' ')
+        bigram = f"{first_word} {second_word}"
+        if bigram not in trigram_probabilities:
+            trigram_probabilities[bigram] = [[third_word, trigram_mle(third_word, bigram)]]
+        else:
+            trigram_probabilities[bigram].append([third_word, trigram_mle(third_word, bigram)])
+    return trigram_probabilities
+
+
+def predict_next_word(param):
+    return r.choices([word[0] for word in param], weights=[prob[1] for prob in param])[0]
+
+
+def generate_tweet():
+    tweet = "<s>"
+    predicted = "<s>"
+    while predicted != '</s>':
+        predicted = predict_next_word(bigram_probabilities[predicted])
+        tweet += f" {predicted}"
+    return tweet
+
+
+def generate_tweet_trigram():
+    tweet = "<s> <s>"
+    predicted = ""
+    last_bigram = "<s> <s>"
+    while last_bigram != "</s> </s>":
+        predicted = predict_next_word(trigram_probabilities[last_bigram])
+        tweet += f" {predicted}"
+        words = last_bigram.split(" ")
+        last_bigram = f"{words[1]} {predicted}"
+    return tweet
+
+
 if __name__ == '__main__':
     f = open("./trump_twitter_archive/tweets.csv", "r")
     print(f.readline())
     tweets_bigram = []
+    tweets_bigram_better = []
     tweets_trigram = []
     for line in f.readlines():
         tweets_bigram.append(f"<s> {line.split(',')[1].strip()} </s>")
+        tweets_bigram_better.append(f"<s> <s> {line.split(',')[1].strip()} </s> </s>")
         tweets_trigram.append(f"<s> <s> {line.split(',')[1].strip()} </s> </s>")
 
     word_freq = count_word_freq(tweets_bigram)
     bigram_freq = count_bigram_freq(tweets_bigram)
+    bigram_freq_better = count_bigram_freq(tweets_bigram_better)
     trigram_freq = count_trigram_freq(tweets_trigram)
-    print(trigram_freq)
 
-    for key in trigram_freq.keys():
-        if trigram_freq[key] > 3:
-            print(f"{key}: {trigram_freq[key]}")
+    bigram_probabilities = compute_bigram_probabilities()
 
-    # calcolo probabilità trigramma "a total loser!"
-    freq_a_total = bigram_freq['a total']
-    freq_a_total_loser = trigram_freq['a total loser!']
-    loser_given_a_total = freq_a_total_loser / freq_a_total
+    result = generate_tweet()
+    print(result)
 
-    # calcolo probabilità bigramma "total loser!"
-    freq_total = word_freq['total']
-    freq_total_loser = bigram_freq['total loser!']
-    loser_given_total = freq_total_loser / freq_total
-    print(loser_given_total)
+    trigram_probabilities = compute_trigram_probabilities()
+
+    result_trigram = generate_tweet_trigram()
+    print(result_trigram)
