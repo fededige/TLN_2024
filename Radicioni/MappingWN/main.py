@@ -1,3 +1,4 @@
+from nltk import SnowballStemmer
 from nltk.corpus import wordnet as wn
 from nltk.corpus import framenet as fn, stopwords
 import string
@@ -61,14 +62,52 @@ def get_most_frequent_words_wn(synsets):
 def get_contexts_fn(frame, most_frequent_words):
     translator = str.maketrans('', '', string.punctuation)
     contexts = {}
-    contexts[frame.name] = [word for word in frame.definition.lower().translate(translator).split(' ') if
-                            word in most_frequent_words]
+    if frame.name in contexts:
+        contexts[frame.name] += [word for word in frame.definition.lower().translate(translator).split(' ') if
+                                 word in most_frequent_words and word not in contexts[frame.name]]
+    else:
+        contexts[frame.name] = [word for word in frame.definition.lower().translate(translator).split(' ') if
+                                word in most_frequent_words]
     frame_elements = frame.FE.keys()
     for frame_element in frame_elements:
         fed = frame.FE[frame_element]
-        contexts[frame_element] = [word for word in fed.definition.lower().translate(translator).split(' ') if
-                                   word in most_frequent_words]
+        contexts[frame_element] = list(set([word for word in fed.definition.lower().translate(translator).split(' ') if
+                                            word in most_frequent_words]))
     return contexts
+
+
+def get_contexts_wn(synsets, most_frequent_words):
+    snow_stm = SnowballStemmer('english')
+    most_frequent_words_stemmed = [snow_stm.stem(fw) for fw in most_frequent_words]
+    translator = str.maketrans('', '', string.punctuation)
+    contexts = {}
+    for syn in synsets:
+        contexts[syn.name()] = list(set([word for word in syn.definition().lower().translate(translator).split(' ') if
+                                         snow_stm.stem(word) in most_frequent_words_stemmed]))
+        for ex in syn.examples():
+            contexts[syn.name()] += list(set([word for word in ex.lower().translate(translator).split(' ') if
+                                              snow_stm.stem(word) in most_frequent_words_stemmed]))
+    return contexts
+
+
+def bag_of_word(ctx_w, ctx_s):
+    print(ctx_w)
+    print(ctx_s)
+    print(set(ctx_s).intersection(set(ctx_w)))
+    return len(set(ctx_s).intersection(set(ctx_w))) + 1
+
+
+def mapping(framenet_contexts, wordnet_contexts):
+    result = {}
+    for frame_element in framenet_contexts.keys():
+        score = 0
+        for word in wordnet_contexts.keys():
+            new_score = bag_of_word(framenet_contexts[frame_element], wordnet_contexts[word])
+            print(frame_element, word, new_score)
+            if score < new_score:
+                score = new_score
+                result[frame_element] = word
+    return result
 
 
 def map_to_wn(frame):
@@ -76,7 +115,8 @@ def map_to_wn(frame):
     framenet_contexts = get_contexts_fn(frame, most_frequent_words_fn)
     wn_synsets = wn.synsets(frame.name)
     most_frequent_words_wn = get_most_frequent_words_wn(wn_synsets)
-    print(most_frequent_words_wn)
+    wordnet_contexts = get_contexts_wn(wn_synsets, most_frequent_words_wn)
+    print("Mapping: ", mapping(framenet_contexts, wordnet_contexts))
 
 
 if __name__ == '__main__':
@@ -94,7 +134,8 @@ if __name__ == '__main__':
     for frame_id in federico:
         federico_frame.append(fn.frame(frame_id))
 
-    map_to_wn(luca_bonamico_frame[0])
+    print(luca_cena_frame[4])
+    map_to_wn(luca_cena_frame[4])
 
     # for f in luca_bonamico_frame:
     #     print("\n", f.name)
