@@ -17,15 +17,26 @@ class Frame:
             self.complete = True
         return self.complete
 
-    def add_keyword(self, keyword):
+    def add_keyword(self, keyword, polarity=False):
         if self.question is None:
             return False
-        if keyword.lower() in [x.lower() for x in self.question.get_keywords()]:
-            self.current_keywords.add(keyword.lower())
-            self.check_frame_complete()
-            return True
-        else:
+        if self.question.get_type() == 4:
+            if polarity:
+                self.complete = True
+                return True
             return False
+        elif self.question.get_type() == 5:
+            if polarity:
+                self.complete = True
+                return True
+            return False
+        else:
+            if keyword.lower() in [x.lower() for x in self.question.get_keywords()]:
+                self.current_keywords.add(keyword.lower())
+                self.check_frame_complete()
+                return True
+            else:
+                return False
 
     def check_already_said(self, keyword):
         return keyword.lower() in self.current_keywords

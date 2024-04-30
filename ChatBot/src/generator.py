@@ -65,7 +65,7 @@ class Generator:
                 answer = self.generate_answer_with_params(random.choice(verbs_first_type), topic, subject, None,
                                                           random.choice(mild_obj_modifiers), None,
                                                           random.choice(comment_list[2]), past=True)
-        elif q_type == 2 or q_type == 1:
+        elif q_type == 2 or q_type == 1 or q_type == 4 or q_type == 5:
             if positivity == "positive":
                 answer = self.generate_answer_with_params(random.choice(verbs_second_type), topic, subject, None,
                                                           random.choice(obj_modifiers_second_type), None,
@@ -111,6 +111,8 @@ class Generator:
         output = self.realiser.realise(final_comment).getRealisation()
         return output
 
+    def generate_question(self, keywords, topic):
+        return ""
 
 if __name__ == "__main__":
     g = Generator()

@@ -39,7 +39,7 @@ positive_obj_modifiers = [
 
 mild_obj_modifiers = ["some of the", "a few of the", "many of the"]
 
-negative_obj_modifiers = ["none of the", "any of the"]
+negative_obj_modifiers = ["none of the", "not one of the"]
 
 comment_list = [
     [

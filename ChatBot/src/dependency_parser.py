@@ -1,10 +1,12 @@
 import spacy
+from spacytextblob.spacytextblob import SpacyTextBlob
 
 
 class DependencyParser:
     def __init__(self):
         self.text = ""
         self.nlp = spacy.load("en_core_web_lg")
+        self.nlp.add_pipe('spacytextblob')
         self.doc = None
 
     def set_text(self, text):
@@ -64,9 +66,42 @@ class DependencyParser:
                 t = token.replace(el.text, "", 1)
         return t.strip()
 
+    def get_polarity(self):
+        sentiment_score = self.doc._.blob.polarity
+        if sentiment_score > 0:
+            return True
+        elif sentiment_score < 0:
+            return False
+        else:
+            if 'yes' in self.text.lower():
+                return True
+            elif 'no' in self.text.lower():
+                return False
+            return "Neutral"
+
 
 if __name__ == "__main__":
     parser = DependencyParser()
-    parser.set_text("3 phenomena are: ")
-    print("test get_tokens(): ", parser.get_tokens())
-    print("test get_topic(): ", parser.get_topic())
+    # parser.set_text('Yes, it does')
+    # print(parser.get_polarity())
+    # parser.set_text('No, it doesn\'t')
+    # print(parser.get_polarity())
+    # parser.set_text('True')
+    # print(parser.get_polarity())
+    # parser.set_text('False')
+    # print(parser.get_polarity())
+    # parser.set_text('Yes')
+    # print(parser.get_polarity())
+    # parser.set_text('No')
+    # print(parser.get_polarity())
+    # parser.set_text('You\'re right')
+    # print(parser.get_polarity())
+    # parser.set_text('Maybe')
+    # print(parser.get_polarity())
+
+    sentences = ["Yes, it does", "No, it doesn\'t", "True", "False", "Yes", "maybe", "you're right"]
+
+    for sentence in sentences:
+        parser.set_text(sentence)
+        sentiment = parser.get_polarity()
+        print(f"Sentence: {sentence} -- Sentiment: {sentiment}")
