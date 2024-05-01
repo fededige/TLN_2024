@@ -67,39 +67,31 @@ class DependencyParser:
         return t.strip()
 
     def get_polarity(self):
+        if 'yes' in self.text.lower():
+            return True
+        elif 'no' in self.text.lower():
+            return False
         sentiment_score = self.doc._.blob.polarity
         if sentiment_score > 0:
             return True
         elif sentiment_score < 0:
             return False
         else:
-            if 'yes' in self.text.lower():
-                return True
-            elif 'no' in self.text.lower():
-                return False
-            return "Neutral"
+            return None
+
+
+def get_negativity(sentence):
+    elements = ["no", "\'t", "none", "nor", "neither"]
+    for el in elements:
+        if el in sentence.lower():
+            return True
+    return False
 
 
 if __name__ == "__main__":
     parser = DependencyParser()
-    # parser.set_text('Yes, it does')
-    # print(parser.get_polarity())
-    # parser.set_text('No, it doesn\'t')
-    # print(parser.get_polarity())
-    # parser.set_text('True')
-    # print(parser.get_polarity())
-    # parser.set_text('False')
-    # print(parser.get_polarity())
-    # parser.set_text('Yes')
-    # print(parser.get_polarity())
-    # parser.set_text('No')
-    # print(parser.get_polarity())
-    # parser.set_text('You\'re right')
-    # print(parser.get_polarity())
-    # parser.set_text('Maybe')
-    # print(parser.get_polarity())
 
-    sentences = ["Yes, it does", "No, it doesn\'t", "True", "False", "Yes", "maybe", "you're right"]
+    sentences = ["Yes, it does", "No, it doesn\'t", "True", "False", "Yes", "maybe", "you're right", "no, false", "wrong", "wrong."]
 
     for sentence in sentences:
         parser.set_text(sentence)

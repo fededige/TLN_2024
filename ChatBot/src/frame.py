@@ -12,9 +12,10 @@ class Frame:
     def check_frame_complete(self):
         if self.question is None:
             return False
-        keywords = set(self.question.get_keywords())
-        if self.current_keywords == keywords:
-            self.complete = True
+        if not self.complete:
+            keywords = set(self.question.get_keywords())
+            if self.current_keywords == keywords:
+                self.complete = True
         return self.complete
 
     def add_keyword(self, keyword, polarity=False):
@@ -26,7 +27,7 @@ class Frame:
                 return True
             return False
         elif self.question.get_type() == 5:
-            if polarity:
+            if not polarity:
                 self.complete = True
                 return True
             return False

@@ -54,15 +54,23 @@ class DialogManager:
         total_weight = 0
         while self.num_questions < 4:
             question = self.generate_question()
-            question_text = self.change_question(question)
+            if question.get_type() != 2:
+                question_text = self.change_question(question)
+            else:
+                question_text = question.get_text()
             if question is None:
                 return
             self.frame.add_question(question)
             self.print_danny(question_text)
             answer = self.clean_answer(input("User: "))
-            answer_tokens = self.analyze_user_answer(answer)
+            if question.get_type() < 4:
+                answer_tokens = self.analyze_user_answer(answer)
+            else:
+                self.dependency_parser.set_text(answer)
+                answer_tokens = [answer]
             temp_score, question_complete = self.check_answer(answer_tokens, question)
-            if not question_complete and question.get_type() != 1 and question.get_type() != 4 and question.get_type() != 5:
+            if (not question_complete and question.get_type() != 1 and question.get_type() != 4
+                    and question.get_type() != 5):
                 self.print_danny(f"Do you want to add something else about {self.dependency_parser.get_topic()}?")
                 answer = self.clean_answer(input("User: "))
                 answer_tokens = self.analyze_user_answer(answer)
@@ -85,15 +93,15 @@ class DialogManager:
 
     def change_question(self, question):
         rnd = random.randint(0, 100)
-
+        old_type = question.get_type()
         if rnd < 20:
             self.dependency_parser.set_text(question.get_text())
             question.set_type(4)
-            self.g.generate_question(question.get_keywords(), self.dependency_parser.get_topic())
+            return self.g.generate_question(question.get_keywords(), self.dependency_parser.get_topic(), old_type)
         elif 20 < rnd < 40:
             self.dependency_parser.set_text(question.get_text())
             question.set_type(5)
-            self.g.generate_question(question.get_false_keywords(), self.dependency_parser.get_topic())
+            return self.g.generate_question(question.get_false_keywords(), self.dependency_parser.get_topic(), old_type)
         else:
             return question.get_text()
 

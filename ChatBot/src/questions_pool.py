@@ -1,7 +1,4 @@
 import question
-# What are the 6 remarkable phenomena of the human dialogue?
-#
-
 
 q1 = question.Question("What are the 6 remarkable phenomena of the human dialogue?",
                        [

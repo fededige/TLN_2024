@@ -2,7 +2,6 @@ import random
 import simplenlg
 from sentences_pool import *
 
-
 class Generator:
     def __init__(self):
         self.lexicon = simplenlg.Lexicon.getDefaultLexicon()
@@ -16,7 +15,7 @@ class Generator:
             subj = self.nlgFactory.createNounPhrase(subj)
             subj.addModifier(sbj_modifier)
         if obj_modifier is not None:
-            obj = self.nlgFactory.createNounPhrase(obj)
+            obj = self.nlgFactory.createNounPhrase("the " + obj)
             obj.addPreModifier(obj_modifier)
         if verb_modifier is not None:
             verb = self.nlgFactory.createVerbPhrase(verb)
@@ -65,7 +64,7 @@ class Generator:
                 answer = self.generate_answer_with_params(random.choice(verbs_first_type), topic, subject, None,
                                                           random.choice(mild_obj_modifiers), None,
                                                           random.choice(comment_list[2]), past=True)
-        elif q_type == 2 or q_type == 1 or q_type == 4 or q_type == 5:
+        else:
             if positivity == "positive":
                 answer = self.generate_answer_with_params(random.choice(verbs_second_type), topic, subject, None,
                                                           random.choice(obj_modifiers_second_type), None,
@@ -83,13 +82,17 @@ class Generator:
 
     def generate_result(self, score, positivity):
         if positivity == "extra-positive":
-            return self.generate_final_comment(score, random.choice(obj_final_comment), random.choice(final_comment_list[0]))
+            return self.generate_final_comment(score, random.choice(obj_final_comment),
+                                               random.choice(final_comment_list[0]))
         elif positivity == "positive":
-            return self.generate_final_comment(score, random.choice(obj_final_comment), random.choice(final_comment_list[1]))
+            return self.generate_final_comment(score, random.choice(obj_final_comment),
+                                               random.choice(final_comment_list[1]))
         elif positivity == "mild":
-            return self.generate_final_comment(score, random.choice(obj_final_comment), random.choice(final_comment_list[2]))
+            return self.generate_final_comment(score, random.choice(obj_final_comment),
+                                               random.choice(final_comment_list[2]))
         elif positivity == "negative":
-            return self.generate_final_comment(score, random.choice(obj_final_comment), random.choice(final_comment_list[3]))
+            return self.generate_final_comment(score, random.choice(obj_final_comment),
+                                               random.choice(final_comment_list[3]))
 
     def generate_final_comment(self, score, obj, comment):
         comment_clause = self.nlgFactory.createClause(comment)
@@ -111,11 +114,27 @@ class Generator:
         output = self.realiser.realise(final_comment).getRealisation()
         return output
 
-    def generate_question(self, keywords, topic):
-        return ""
+    def generate_question(self, keywords, topic, type):
+        keyword = self.nlgFactory.createNounPhrase(random.choice(keywords))
+        topic = self.nlgFactory.createNounPhrase("the", topic)
+        if type == 3:
+            p = self.nlgFactory.createPrepositionPhrase(random.choice(tricky_questions))
+            p.addComplement(topic)
+            s2 = self.nlgFactory.createClause(keyword, "be")
+            s2.addPostModifier(p)
+        else:
+            s2 = self.nlgFactory.createClause(topic, "be")
+            s2.addPostModifier(keyword)
+        s2.setFeature(simplenlg.Feature.INTERROGATIVE_TYPE, simplenlg.InterrogativeType.YES_NO)
+        return self.realiser.realise(s2).getRealisation().capitalize() + '?'
+# Is the topic keyword?
+
 
 if __name__ == "__main__":
     g = Generator()
+    print(g.generate_question(["generative"], "hmm model", 1))
+    # for i in range(5):
+    #     print(g.generate_question(["a", "b", "c"], "topic"))
     # g.generate_answer_with_params("say", "the 7 phases", "you", None, "correctly", None, "Well done")
     # g.generate_answer_with_params("write", "answer", "you", None, "the correct", None, "Wow")
     # g.generate_answer_with_params("say", "phases", "you", None, "some of the", None, "Good job")
@@ -123,44 +142,4 @@ if __name__ == "__main__":
     # g.generate_answer_with_params(random.choice(verbs_first_type), "NLG symbolic phases", "you", None,
     #                               random.choice(positive_obj_modifiers), None, random.choice(comment_list[0]))
 
-obj_final_comment = ["score", "mark", "grade", "result", "evaluation"]
-final_comment_list = [
-    [
-        "Congratulations! You've demonstrated a great understanding of the topics covered.",
-        "Excellent work! You've shown a deep knowledge of the subject.",
-        "Well done! You've exceeded expectations with your dedication and preparation.",
-        "You've shown great dedication to your studies, and it's evident in your results.",
-        "You've demonstrated a strong mastery of the concepts, congratulations!",
-        "It's clear you've worked hard to achieve this result, congratulations!",
-        "You've achieved an excellent score thanks to your precision and attention to detail.",
-        "Keep it up! Your commitment and passion for the subject are evident."
-    ],
-    [
-        "You're on the right track, but there's still room for improvement.",
-        "You've done very well, showing proficiency in most areas of the exam.",
-        "Your result reflects a high level of competency, with only minor areas for improvement.",
-        "You're close to reaching the top level, showcasing a thorough understanding of the concepts.",
-        "Your score indicates a very good understanding of the material, with just a few areas that could be "
-        "strengthened."
-    ],
-    [
-        "There's room for improvement in your understanding of the material.",
-        "Your preparation could have been more extensive.",
-        "Your result reflects the need for additional effort and focus.",
-        "With a bit more practice, you'll grasp the concepts better.",
-        "Your effort is appreciated, but there are areas that need refinement.",
-        "It's clear you're making progress, but there's still work to be done.",
-        "Your performance shows potential, keep working at it.",
-        "There's potential for improvement with more focused study.",
-        "Your understanding is developing, keep up the good work.",
-    ],
-    [
-        "You might need to review some concepts more closely.",
-        "There were some gaps in your understanding of the subject.",
-        "You'll need to work on mastering the concepts further.",
-        "There were some inaccuracies in your answers that need addressing.",
-        "It's important to demonstrate more commitment and passion for the subject."
-        "Consider reviewing the material to strengthen your understanding.",
-        "Don't get discouraged, learning takes time and effort."
-    ]
-]
+
