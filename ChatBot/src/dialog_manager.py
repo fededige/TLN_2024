@@ -16,14 +16,18 @@ class DialogManager:
         self.frame = frame.Frame()
         self.g = generator.Generator()
         self.dependency_parser = dependency_parser.DependencyParser()
+        self.prof_speaking = False
 
     def print_danny(self, text):
         text = text.strip()
-        print(f"Prof. Danny: {text}")
+        if self.prof_speaking:
+            print(f"Prof. Danny: {text}")
+            self.prof_speaking = False
+        else:
+            print(f"             {text}")
 
     def greetings(self):
-        text = "Welcome to TLN exam. I will ask you some questions about the first part of TLN course. Let's start!"
-        self.print_danny(text)
+        print("Prof. Danny: Welcome to TLN exam. I will ask you some questions about the first part of TLN course. Let's start!")
 
     def closing(self, final_comment):
         sys.stdout.write("Prof. Danny: Congrats, you finished the exam! Wait for the result")
@@ -62,7 +66,8 @@ class DialogManager:
                 return
             self.frame.add_question(question)
             self.print_danny(question_text)
-            answer = self.clean_answer(input("User: "))
+            answer = self.clean_answer(input("Student: "))
+            self.prof_speaking = True
             if question.get_type() < 4:
                 answer_tokens = self.analyze_user_answer(answer)
             else:
@@ -72,7 +77,8 @@ class DialogManager:
             if (not question_complete and question.get_type() != 1 and question.get_type() != 4
                     and question.get_type() != 5):
                 self.print_danny(f"Do you want to add something else about {self.dependency_parser.get_topic()}?")
-                answer = self.clean_answer(input("User: "))
+                answer = self.clean_answer(input("Student: "))
+                self.prof_speaking = True
                 answer_tokens = self.analyze_user_answer(answer)
                 temp_score += self.check_answer(answer_tokens, question)[0]
                 self.num_questions += 0.5
