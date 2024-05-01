@@ -1,3 +1,5 @@
+import math
+
 from nltk import SnowballStemmer
 from nltk.corpus import wordnet as wn
 from nltk.corpus import framenet as fn, stopwords
@@ -5,7 +7,6 @@ from nltk.tokenize import word_tokenize
 import nltk
 import string
 import re
-
 
 luca_bonamico = [159, 302, 2837, 792, 2668]
 luca_cena = [2971, 560, 2840, 797, 1894]
@@ -91,7 +92,7 @@ def get_contexts_fn_lu(frame, most_frequent_words):
     # add lu to context
     for lexical_unit in frame.lexUnit.keys():
         contexts[lexical_unit] = [word for word in frame.lexUnit[lexical_unit]['definition'].lower()
-                                  .translate(translator).split(' ')
+        .translate(translator).split(' ')
                                   if snow_stm.stem(word) in most_frequent_words]
     for context in contexts.keys():
         contexts[context] = list(set(contexts[context]))
@@ -142,11 +143,11 @@ def clean_name(frame_element):
     res = frame_element
     if '.' in frame_element:
         res = frame_element.split('.')[0].split('[')[0].strip()
-    elif '_' in frame_element:
+    if '_' in frame_element or ' ' in frame_element:
         words = word_tokenize(frame_element.replace('_', ' ').lower())
         pos_tag = nltk.pos_tag(words)
         pos = [p[1] for p in pos_tag]
-        print(pos)
+        # print(pos)
         index = 0
         if 'JJ' in pos:
             if 'NN' in pos:
@@ -154,8 +155,14 @@ def clean_name(frame_element):
             elif 'NNS' in pos:
                 index = pos.index('NNS')
         elif 'VB' in pos or 'VBD' in pos or 'VBG' in pos or 'VBN' in pos or 'VBP' in pos or 'VBZ' in pos:
-            pass
-            # index = pos.index(r"VB.*")
+            for p in pos:
+                if p in ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']:
+                    index = pos.index(p)
+        else:
+            if 'NN' in pos:
+                index = pos.index('NN')
+            elif 'NNS' in pos:
+                index = pos.index('NNS')
         res = pos_tag[index][0]
     return res
 
@@ -175,7 +182,53 @@ def map_to_wn(frame):
         # print(f"wordnet_contexts: '{frame_element}'", wordnet_contexts)
         # print("------------------------------------")
     # mapping_result_lu = mapping(framenet_contexts_lu, wordnet_contexts)
-    print(mapping_result)
+    return mapping_result
+
+
+def check_accuracy(grooming_gold, frame_mapped):
+    count_correct = 0
+    for key in frame_mapped.keys():
+        if key in grooming_gold.keys():
+            if frame_mapped[key] == grooming_gold[key]:
+                count_correct += 1
+    return count_correct / len(grooming_gold)
+
+
+def check_pearson(gold_terms, frame_terms):
+    gold_values = []
+    frame_values = []
+    num_values = set()
+    for term in gold_terms:
+        num_values.add(term)
+    for term in frame_terms:
+        num_values.add(term)
+
+    num_values = list(num_values)
+    print(num_values)
+
+    for term in gold_terms:
+        gold_values.append(num_values.index(term))
+
+    for term in frame_terms:
+        frame_values.append(num_values.index(term))
+
+    sum_x_y = 0
+    sum_x = 0
+    sum_x_x = 0
+    sum_y_y = 0
+    sum_y = 0
+    n = len(gold_values)
+    for i in range(n):
+        sum_x += gold_values[i]
+        sum_x_x += gold_values[i] * gold_values[i]
+        sum_y += frame_values[i]
+        sum_y_y += frame_values[i] * frame_values[i]
+        sum_x_y += gold_values[i] * frame_values[i]
+
+    numerator = (n * sum_x_y) - (sum_x * sum_y)
+    denominator = math.sqrt((n * sum_x_x) - (sum_x * sum_x)) * math.sqrt((n * sum_y_y) - (sum_y * sum_y))
+
+    return numerator / denominator
 
 
 if __name__ == '__main__':
@@ -194,45 +247,115 @@ if __name__ == '__main__':
         federico_frame.append(fn.frame(frame_id))
 
     # print(luca_cena_frame[4])
-    # for luca_bonamico_f in luca_bonamico_frame:
-    #     map_to_wn(luca_bonamico_f)
+    luca_bonamico_frame_mapped = []
+    for luca_bonamico_f in luca_bonamico_frame:
+        luca_bonamico_frame_mapped.append(map_to_wn(luca_bonamico_f))
 
-    for frame in federico_frame:
-        print(frame.name)
+    luca_cena_frame_mapped = []
+    for luca_cena_f in luca_cena_frame:
+        luca_cena_frame_mapped.append(map_to_wn(luca_cena_f))
 
-    print(clean_name("Fire_break"))
-    print(clean_name("Time_of_creation"))
-    print(clean_name("Specific_individual"))
-    print(clean_name("Religious_belief"))
-    print(clean_name("Change_of_temperature"))
-    print(clean_name("Interrupt_process"))
-    print(clean_name("Attempting_and_resolving_scenario"))
-    print([1, 2, 3].index(4))
-    # c = get_contexts_wn(wn.synsets('brush'), get_most_frequent_words_wn(wn.synsets('brush')))
-    # print(c)
-    # print(luca_bonamico_frame[0])
-    # print('\n____ LUs ____')
-    # LUs = luca_bonamico_frame[0].lexUnit.values()
-    # for lu in LUs:
-    #     print(lu)
-    # print(LUs)
-    # print('\n____ FEs ____')
-    # FEs = luca_cena_frame[1].FE.keys()
-    # for fe in FEs:
-    #     fed = luca_cena_frame[1].FE[fe]
-    #     print('\tFE: {}\tDEF: {}'.format(fe, fed.definition))
-    #
-    # print('\n____ LUs ____')
-    # for lexUnit in luca_cena_frame[1].lexUnit.keys():
-    #     print(lexUnit)
-    #
-    # LUsValues = list(f.lexUnit.values())
-    # i = 0
-    # print(f.lexUnit)
-    # LUsKeys = list(f.lexUnit.keys())
-    # LUsValues = list(f.lexUnit.values())
-    # i = 0
-    # while i < len(LUsKeys):
-    #     print(f"{LUsKeys[i]} ---> {LUsValues[i]['exemplars']}")
-    #     i += 1
-    # break
+    federico_frame_mapped = []
+    for federico_f in federico_frame:
+        federico_frame_mapped.append(map_to_wn(federico_f))
+    grooming_gold = {
+        'Grooming': 'groom.v.03',
+        'Result': 'consequence.n.01',
+        'Agent': 'agentive_role.n.06',
+        'Patient': 'affected_role.n.01',
+        'Instrument': 'instrument.n.01',
+        'Body_part': 'body.n.01',
+        'Medium': '',
+        'Frequency': 'frequency.n.01',
+        'Manner': 'manner.n.01',
+        'Time': 'time.n.01',
+        'Place': 'topographic_point.n.01',
+        'Duration': 'duration.n.01',
+        'Purpose': 'purpose.n.01',
+        'Means': 'mean.v.07',
+        'bathe.v': 'bathe.v.03',
+        'wash.v': 'wash.v.02',
+        'lave.v': 'wash.v.02',
+        'shower.v': 'shower.v.03',
+        'pluck.v': 'pluck.v.01',
+        'floss.v': 'floss.v.01',
+        'shave.v': 'shave.v.01',
+        'wax.v': 'wax.v.01',
+        'comb.v': 'comb.v.01',
+        'shampoo.v': 'shampoo.v.01',
+        'manicure.v': 'manicure.v.01',
+        'pedicure.n': 'pedicure.n.01',
+        'ablution.n': 'ablution.n.01',
+        'moisturize.v': 'humidify.v.01',
+        'soap.v': 'soap.v.1',
+        'cleanse.v': 'cleanse.v.01',
+        'facial.n': 'facial.n.02',
+        'manicure.n': 'manicure.n.01',
+        'groom.v': 'dress.v.15',
+        'brush [teeth].v': 'brush.v.03',
+        'brush [hair].v': 'brush.v.01',
+        'plait.v': 'braid.v.01',
+        'file.v': 'file.v.02',
+    }
+
+    becoming_gold = {
+        'Becoming': 'become.v.02',
+        'Place': 'topographic_point.n.01',
+        'Time': 'time.n.01',
+        'Duration_of_final_state': 'duration.n.01',
+        'Manner': 'manner.n.01',
+        'Entity': 'entity.n.01',
+        'Final_quality': 'quality.n.03',
+        'Final_category': 'class.n.01',
+        'Transitional_period': 'time_period.n.01',
+        'Initial_state': 'state.n.02',
+        'Circumstances': 'circumstances.n.01',
+        'Initial_category': 'class.n.01',
+        'Group': 'group.n.01',
+        'Explanation': 'explanation.n.01',
+        'become.v': 'become.v.02',
+        'turn.v': 'become.v.02',
+    }
+
+    desiring_gold = {
+        'Desiring': 'desire.v.01',
+        'Experiencer': '',
+        'Event': 'event.n.02',
+        'Focal_participant': 'participant.n.01',
+        'Degree': 'degree.n.01',
+        'Explanation': 'explanation.n.01',
+        'Purpose_of_event': 'function.n.02',
+        'Location_of_event': 'location.n.01',
+        'Duration': 'duration.n.01',
+        'Attempting_and_resolving_scenario': '',
+        'want.v': 'desire.v.01',
+        'desire.v': 'desire.v.01',
+        'desire.n': 'desire.n.02',
+        'desirous.a': 'desirous.a.01',
+        'lust.n': 'crave.v.01',
+        'lust.v': 'crave.v.01',
+        'hunger.v': 'crave.v.01',
+        'hunger.n': 'hunger.n.02',
+        'hungry.a': ' athirst.a.01',
+        'thirst.n': 'hunger.n.02',
+        'thirst.v': 'crave.v.02',
+        'thirsty.a': 'athirst.a.01',
+        'long.v': 'hanker.v.02',
+        'longing.n': 'longing.n.01',
+        'urge.n': 'urge.n.02',
+        'aspire.v': 'draw_a_bead_on.v.02',
+        'wish.n': 'wish.n.02',
+        'wish (that).v': 'wish.v.01',
+        'eager.a': 'eager.a.01',
+    }
+
+    accuracy = check_accuracy(grooming_gold, luca_bonamico_frame_mapped[0])
+    print("accuracy: ", accuracy, len(grooming_gold))
+    print()
+    print()
+    accuracy = check_accuracy(becoming_gold, luca_cena_frame_mapped[0])
+    print("accuracy: ", accuracy, len(becoming_gold))
+    print()
+    print()
+    accuracy = check_accuracy(desiring_gold, federico_frame_mapped[1])
+    print("accuracy: ", accuracy, len(desiring_gold))
