@@ -34,11 +34,11 @@ class Generator:
         s2 = self.nlgFactory.createSentence(p2)
 
         r = random.random()
-        if r < 0.35:
+        if r < 0.30:
             par1 = self.nlgFactory.createParagraph([s2, s1])
-        elif r < 0.6:
+        elif 0.3 < r < 0.6:
             par1 = self.nlgFactory.createParagraph([s1, s2])
-        elif r < 0.55:
+        elif r > 0.6:
             if negative is None:
                 par1 = self.nlgFactory.createParagraph([s1])
             else:
