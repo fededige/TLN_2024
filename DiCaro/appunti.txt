@@ -1,0 +1,14 @@
+Parametro 1: scelta su quanti termini prendere in considerazione per il conteggio dei termini più
+             frequenti nelle definizioni
+
+Parametro 2: se effettuare o no la disambiguazione
+
+Parametro 3: profondità nella ricerca tra iponimi di iponimi
+
+Parametro 4: scelta dell’algoritmo di similarità/sovrapposizione tra definizione synset e nostre definizioni
+
+Parametro 5: tra tutte definizioni, pensare eventualmente meccanismo che tolga definizioni “scomode”
+             (es. troppe parole, troppe poche parole..)
+
+Parametro 6: con o senza stopword
+
