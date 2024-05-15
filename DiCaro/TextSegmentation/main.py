@@ -1,16 +1,38 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import string
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def get_cohesion(block_size):
+    return
 
 
-# Press the green button in the gutter to run the script.
+def get_sentences(file):
+    sentences = []
+    for lines in file.readlines():
+        sentences += [line.lower().strip().translate(translator) for line in lines.split('.')]
+
+    clean_sentences = []
+    for sentence in sentences:
+        if len(sentence.split(' ')) > 1:
+            clean_sentences.append(sentence)
+
+    return clean_sentences
+
+
+def get_blocks(block_size, sentences):
+    blocks = []
+    i = 0
+    while i < len(sentences):
+        blocks.append(sentences[i:i+block_size])
+        i += block_size
+    return blocks
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    translator = str.maketrans('', '', string.punctuation)
+    f = open("./text1.txt", "r")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    sentences = get_sentences(f)
+    block_size = 3
+    plot = [0] * round((len(sentences) / block_size))
+
+    blocks = get_blocks(block_size, sentences)
