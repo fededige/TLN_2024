@@ -1,24 +1,46 @@
 import string
+
+import nltk
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet as wn
 import math
+from nltk.tokenize import word_tokenize
 
 
-def get_most_common(defs, n, subject, remove_stopwords_flag=True):
+def get_most_frequent(defs, n_frequent_words, n_genus, subject, remove_stopwords_flag=True):
     frequency = {}
+    only_nouns = set()
+    words = []
     for definition in defs:
+        text = word_tokenize(definition)
+        pos_tagging = nltk.pos_tag(text)
         if len(definition) <= 0:
             continue
-        if remove_stopwords_flag:
-            words = [word for word in definition.split(' ') if word not in stopword and word != subject]
-        else:
-            words = [word for word in definition.split(' ') if word != subject]
+        for word in definition.split(' '):
+            if remove_stopwords_flag:
+                if word != subject and word not in stopword:
+                    words.append(word)
+                    for tuple in pos_tagging:
+                        if tuple[0] == word and tuple[1] in "NN, NNS":
+                            only_nouns.add(word)
+            else:
+                if word != subject:
+                    words.append(word)
+                    for tuple in pos_tagging:
+                        if tuple[0] == word and tuple[1] in "NN, NNS":
+                            only_nouns.add(word)
         for word in words:
             if word not in frequency.keys():
                 frequency[word] = 1
             else:
                 frequency[word] += 1
-    return list(dict(sorted(frequency.items(), key=lambda item: item[1], reverse=True)).keys())[:n]
+    top_n_frequent_words = list(dict(sorted(frequency.items(), key=lambda item: item[1], reverse=True)).keys())[
+                         :n_frequent_words]
+    genus = []
+    for word in top_n_frequent_words:
+        if word in only_nouns:
+            genus.append(word)
+    return top_n_frequent_words, genus[:n_genus]
 
 
 def get_wordnet_synsets(genus, depth=0, consider_hyponym=False, consider_hypernym=False):
@@ -60,7 +82,25 @@ def get_wordnet_definition(synsets):
     return result
 
 
-def get_similarity(defs, genus, all_synset_definition):
+def jaccard_similarity(defs, synset_definitions):
+    result = {}
+    defs_string = ""
+    for definition in defs:
+        defs_string += f"{definition} "
+    for synset in synset_definitions:
+        definition = f" {synset_definitions[synset].strip().lower().translate(translator)} "
+        intersection = set()
+        union = set([d for d in defs_string.split(' ')])
+        for word in definition.split(' '):
+            union.add(word)
+            if word in defs_string.split(' '):
+                intersection.add(word)
+        similarity = len(intersection) / len(union)
+        result[synset] = similarity
+    return dict(sorted(result.items(), key=lambda item: item[1], reverse=True)[:10])
+
+
+def get_cos_similarity(defs, genus, all_synset_definition):
     vector_defs = [0] * len(genus)
     vector_synset = [0] * len(genus)
     vector_result = {}
@@ -100,6 +140,20 @@ def get_similarity(defs, genus, all_synset_definition):
     return dict(sorted(result.items(), key=lambda item: item[1], reverse=True)[:10])
 
 
+def get_final_synsets(values):
+    synset_result = {}
+    last_value = 0
+    for element in values.keys():
+        if last_value == 0:
+            synset_result[element] = values[element]
+            last_value = values[element]
+        elif values[element] == last_value:
+            synset_result[element] = values[element]
+        else:
+            break
+    return synset_result
+
+
 if __name__ == '__main__':
     stopword = stopwords.words('english')
     translator = str.maketrans('', '', string.punctuation)
@@ -117,97 +171,39 @@ if __name__ == '__main__':
         ontology.append(splitted_line[4].replace('"', '').replace('\n', '').strip().lower().translate(translator))
 
     print("PEN")
-    most_common_word = get_most_common(pen, 10, "pen", remove_stopwords_flag=True)
-    print("pen 10 most common word without stopwords: \n", most_common_word)
-    all_synsets = get_wordnet_synsets(most_common_word, 3, consider_hyponym=True, consider_hypernym=True)
-    all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(pen, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
-
-    genus = ["write", "object", "tool", "ink"]
+    most_frequent_word, genus = get_most_frequent(pen, 10, 5, "pen", remove_stopwords_flag=True)
     all_synsets = get_wordnet_synsets(genus, 3, consider_hyponym=True, consider_hypernym=True)
     all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(pen, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
+    cosine_similarity = get_cos_similarity(pen, most_frequent_word, all_synset_definition)
+    similarity = jaccard_similarity(most_frequent_word, all_synset_definition)
+    print("cosine_similarity: ", get_final_synsets(cosine_similarity))
+    print("jaccard_similarity: ", get_final_synsets(similarity))
 
-    genus = ["write", "object", "tool"]
+    print("\nCIGARETTE")
+    most_frequent_word, genus = get_most_frequent(cigarette, 10, 5, "cigarette", remove_stopwords_flag=True)
     all_synsets = get_wordnet_synsets(genus, 3, consider_hyponym=True, consider_hypernym=True)
     all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(pen, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
+    cosine_similarity = get_cos_similarity(cigarette, most_frequent_word, all_synset_definition)
+    similarity = jaccard_similarity(most_frequent_word, all_synset_definition)
+    print("cosine_similarity: ", get_final_synsets(cosine_similarity))
+    print("jaccard_similarity: ", get_final_synsets(similarity))
 
-    genus = ["write", "object", "tool", "ink", "writing"]
+    print("\nCLOUD")
+    most_frequent_word, genus = get_most_frequent(cloud, 10, 5, "cloud", remove_stopwords_flag=True)
     all_synsets = get_wordnet_synsets(genus, 3, consider_hyponym=True, consider_hypernym=True)
     all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(pen, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
+    cosine_similarity = get_cos_similarity(cloud, most_frequent_word, all_synset_definition)
+    similarity = jaccard_similarity(most_frequent_word, all_synset_definition)
+    print("cosine_similarity: ", get_final_synsets(cosine_similarity))
+    print("jaccard_similarity: ", get_final_synsets(similarity))
 
-    print("CIGARETTE")
-    most_common_word = get_most_common(cigarette, 10, "cigarette", remove_stopwords_flag=True)
-    print("cigarette 10 most common word without stopwords: \n", most_common_word)
-    all_synsets = get_wordnet_synsets(most_common_word, 3, consider_hyponym=True, consider_hypernym=True)
-    all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(cigarette, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
-
-    genus = ["tobacco", "object", "smoked"]
+    print("\nONTOLOGY")
+    most_frequent_word, genus = get_most_frequent(ontology, 10, 5, "ontology", remove_stopwords_flag=True)
     all_synsets = get_wordnet_synsets(genus, 3, consider_hyponym=True, consider_hypernym=True)
     all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(cigarette, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
+    cosine_similarity = get_cos_similarity(ontology, most_frequent_word, all_synset_definition)
+    similarity = jaccard_similarity(most_frequent_word, all_synset_definition)
+    print("cosine_similarity: ", get_final_synsets(cosine_similarity))
+    print("jaccard_similarity: ", get_final_synsets(similarity))
 
-    print("Cloud")
-    most_common_word = get_most_common(cloud, 10, "cloud", remove_stopwords_flag=True)
-    print("cloud 10 most common word without stopwords: \n", most_common_word)
-    all_synsets = get_wordnet_synsets(most_common_word, 4, consider_hyponym=True, consider_hypernym=True)
-    all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(cloud, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
 
-    genus = ["phenomenon", "atmosphere", "sky"]
-    all_synsets = get_wordnet_synsets(genus, 3, consider_hyponym=True, consider_hypernym=True)
-    all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(cloud, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
-
-    print("Ontology")
-    most_common_word = get_most_common(ontology, 10, "ontology", remove_stopwords_flag=True)
-    print("ontology 10 most common word without stopwords: \n", most_common_word)
-    all_synsets = get_wordnet_synsets(most_common_word, 3, consider_hyponym=True, consider_hypernym=True)
-    all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(ontology, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
-
-    genus = ["knowledge", "philosophical", "structure"]
-    all_synsets = get_wordnet_synsets(genus, 3, consider_hyponym=True, consider_hypernym=True)
-    all_synset_definition = get_wordnet_definition(all_synsets)
-    synsets_similarity = get_similarity(ontology, most_common_word, all_synset_definition)
-    print("synsets_similarity: ", synsets_similarity)
-
-    # all_synsets = get_wordnet_synsets(genus, 1, consider_hyponym=True, consider_hypernym=True)
-    # all_synset_definition = get_wordnet_definition(all_synsets)
-    # print(all_synset_definition)
-
-    # print("test: ", wn.synset("writing_implement.n.01").definition())
-    # print("test: ", wn.synset("use.v.02").hyponyms())
-    # print("test: ", wn.synset("use.v.02").hypernyms())
-
-    # res = get_wn_synset(genus, wordnet_defs_exs)
-    # print("Mapping between our definition and wordnet (only direct synset)\n", dict(sorted(res.items(), key=lambda item: item[1], reverse=True)))
-    #
-    # wordnet_defs_exs = get_wordnet_synset_2("pen", consider_hyponym=True, consider_hypernym=True)
-    # res = get_wn_synset(genus, wordnet_defs_exs)
-    # print("Mapping between our definition and wordnet (inlcuding hyperonym and hyponym)\n", dict(sorted(res.items(), key=lambda item: item[1], reverse=True)))
-    # print()
-    # print("PEN with stopword")
-    # genus = get_most_common(pen, 10, "pen", remove_stopwords_flag=False)
-    # # print("pen 10 most common word without stopwords: \n", genus)
-    # wordnet_defs_exs = get_wordnet_synset("pen", consider_hyponym=True, consider_hypernym=True)
-    # res = get_wn_synset(genus, wordnet_defs_exs)
-    # print("Mapping between our definition and wordnet (only direct synset)\n",
-    #       dict(sorted(res.items(), key=lambda item: item[1], reverse=True)))
-    #
-    # wordnet_defs_exs = get_wordnet_synset_2("pen", consider_hyponym=True, consider_hypernym=True)
-    # res = get_wn_synset(genus, wordnet_defs_exs)
-    # print("Mapping between our definition and wordnet (inlcuding hyperonym and hyponym)\n",
-    #       dict(sorted(res.items(), key=lambda item: item[1], reverse=True)))

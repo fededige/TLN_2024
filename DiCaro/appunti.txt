@@ -12,3 +12,14 @@ Parametro 5: tra tutte definizioni, pensare eventualmente meccanismo che tolga d
 
 Parametro 6: con o senza stopword
 
+
+
+
+
+Appunti terzo esercizio (text segmentation):
+    - algoritmopseuod sule dispense (o lo cerchiamo online)
+    - one shot/iterativo
+    - documenti per la valutazione dobbiamo sceglierli ad hoc
+    - i documenti devono avere numerosi argomenti differenti tra di loro
+    - fare prova anche su esempi facili/difficili (storia sport / sport1 sport2)
+    - la parte la più importante è la valutazione
