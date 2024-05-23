@@ -52,6 +52,7 @@ def get_sentences(file):
 
     return clean_sentences
 
+
 def get_real_sentences(file):
     file.seek(0)
     sentences = []
@@ -89,10 +90,18 @@ def get_real_minimums(minimums, plot, threshold):
         min_value = plot[minimum]
         prev_value = None
         succ_value = None
-        if minimum - 1 > 0:
+        if minimum - 1 >= 0:
             prev_value = plot[minimum - 1]
         if minimum + 1 < len(plot):
             succ_value = plot[minimum + 1]
+
+        if prev_value is not None:
+            print(f"Delta in {minimum} between {prev_value} and {min_value} is:", (prev_value - min_value))
+        elif succ_value is not None:
+            print(f"Delta in {minimum} between {succ_value} and {min_value} is: ", (succ_value - min_value))
+        else:
+            print("No Delta computed")
+
         if prev_value is not None and (prev_value - min_value) > threshold:
             real_minimums.append(minimum)
         elif succ_value is not None and (succ_value - min_value) > threshold:
@@ -100,8 +109,8 @@ def get_real_minimums(minimums, plot, threshold):
     return real_minimums
 
 
-def get_paragraphs(block_size, real_minimums, sentences):
-    paragraphs = []
+def get_segments(block_size, real_minimums, sentences):
+    segments = []
     positions = [0]
     for minimum in real_minimums:
         pos = (block_size * minimum) + block_size
@@ -110,23 +119,42 @@ def get_paragraphs(block_size, real_minimums, sentences):
         positions.append(len(sentences))
 
     for j in range(len(positions) - 1):
-        paragraphs.append('. '.join(sentences[positions[j]:positions[j+1]]))
-    return paragraphs
+        segments.append(sentences[positions[j]:positions[j + 1]])
+    return segments
+
+
+# def get_exact_cut(real_minimums, blocks):
+#     for minimum in real_minimums:
+#         new_block = []
+#         for s in blocks[minimum]:
+#             new_block.append(s)
+#         for s in blocks[minimum + 1]:
+#             new_block.append(s)
+#
+#         plot = [0.0] * (len(new_block) - 1)
+#
+#         for i in range(len(new_block) - 1):
+#             plot[i] = get_cohesion([new_block[i]], [new_block[i + 1]])
+#             print(plot[i])
+#             print("similarity between:")
+#             print("\t", new_block[i])
+#             print("and")
+#             print("\t", new_block[i + 1])
+#             print()
 
 
 if __name__ == '__main__':
     stopword = stopwords.words('english')
     translator = str.maketrans('', '', string.punctuation)
-    f = open("./text3.txt", "r")
+    text_name = "text1"
+    f = open(f"./{text_name}.txt", "r")
     real_sentences = get_real_sentences(f)
     sentences = get_sentences(f)
-    print(len(real_sentences), real_sentences)
-    print(len(sentences), sentences)
-    block_size = 3
+    block_size = 4
     if len(sentences) % block_size != 0:
-        plot = [0] * (int((len(sentences) / block_size)))
+        plot = [0.0] * (int((len(sentences) / block_size)))
     else:
-        plot = [0] * (int((len(sentences) / block_size)) - 1)
+        plot = [0.0] * (int((len(sentences) / block_size)) - 1)
 
     blocks = get_blocks(block_size, sentences)
 
@@ -134,13 +162,55 @@ if __name__ == '__main__':
         plot[i] = get_cohesion(blocks[i], blocks[i + 1])
 
     minimums = argrelextrema(np.array(plot), np.less)[0].tolist()
+    threshold = 0.166
+    real_minimums = get_real_minimums(minimums, plot, threshold)
 
-    real_minimums = get_real_minimums(minimums, plot, 0.13)
+    segments = get_segments(block_size, real_minimums, sentences)
 
-    paragraphs = get_paragraphs(block_size, real_minimums, real_sentences)
-    print(len(paragraphs), paragraphs)
+    x = range(len(plot))
+    plt.plot(x, plot)
+    plt.xticks(x)
+    plt.title(f"Block Size = {block_size}, threshold = {threshold}, number of sentences = {len(sentences)}")
+    for minimum in real_minimums:
+        plt.axvline(x=minimum, color='r')
+    plt.savefig(f"{text_name}_{block_size}_plot.png")
+
+    for seg in segments:
+        for s in seg:
+            print(s)
+        print()
+    print(len(segments))
+
+    # for i in range(len(blocks)):
+    #     print(blocks[i])
+    #     print(i)
+    #     print()
 
 
-    x_axis = [[], [], ["1-4", "3-6", "5-8", "7-10", "9-12", "11-14", "13-16", "15-18"], ["1-6", "4-9", "7-12", "10-15", "13-18"], ["1-8", "5-13", "9-17", "13-18"]]
-    plt.plot(range(len(plot)), plot)
-    plt.savefig(f"plot{block_size}.png")
+    # test = get_exact_cut(real_minimums, blocks)
+
+    # segment_num = 0
+    # last_block = []
+    # for seg in segments:
+    #     plt.clf()
+    #     if len(seg) % block_size != 0:
+    #         plot = [0.0] * (int((len(seg) / block_size)))
+    #     else:
+    #         plot = [0.0] * (int((len(seg) / block_size)) - 1)
+    #     blocks = get_blocks(block_size, seg)
+    #     for i in range(len(blocks) - 1):
+    #         plot[i] = get_cohesion(blocks[i], blocks[i + 1])
+    #     if len(last_block) > 0:
+    #         plot.insert(0, get_cohesion(last_block, blocks[0]))
+    #     print(plot)
+    #     last_block = blocks[len(blocks) - 1]
+    #     minimums = argrelextrema(np.array(plot), np.less)[0].tolist()
+    #     real_minimums = get_real_minimums(minimums, plot, 0.05)
+    #     segments = get_segments(block_size, real_minimums, seg)
+    #     segment_num += 1
+    # plt.plot(range(len(plot)), plot)
+    # for minimum in real_minimums:
+    #     plt.axvline(x=minimum, color='r')
+    # plt.savefig(f"segment-{segment_num}.png")
+    # print()
+    # print()
