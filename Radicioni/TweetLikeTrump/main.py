@@ -92,7 +92,6 @@ def generate_tweet():
 
 def generate_tweet_trigram():
     tweet = "<s> <s>"
-    predicted = ""
     last_bigram = "<s> <s>"
     while last_bigram != "</s> </s>":
         predicted = predict_next_word(trigram_probabilities[last_bigram])
@@ -104,7 +103,7 @@ def generate_tweet_trigram():
 
 if __name__ == '__main__':
     f = open("./trump_twitter_archive/tweets.csv", "r")
-    print(f.readline())
+    f.readline()
     tweets_bigram = []
     tweets_bigram_better = []
     tweets_trigram = []
@@ -121,9 +120,9 @@ if __name__ == '__main__':
     bigram_probabilities = compute_bigram_probabilities()
 
     result = generate_tweet()
-    print(result)
+    print(result.replace('<s> ', '').replace(' </s>', ''))
 
     trigram_probabilities = compute_trigram_probabilities()
 
     result_trigram = generate_tweet_trigram()
-    print(result_trigram)
+    print(result_trigram.replace('<s> ', '').replace(' </s>', ''))
