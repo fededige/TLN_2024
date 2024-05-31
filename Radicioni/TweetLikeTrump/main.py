@@ -102,7 +102,8 @@ def generate_tweet_trigram():
 
 
 if __name__ == '__main__':
-    f = open("./trump_twitter_archive/tweets.csv", "r")
+    corpus = "/home/federico/informatica/TLN/Radicioni/TweetLikeTrump/trump_twitter_archive/tweets.csv"
+    f = open(corpus, "r", encoding="utf-8")
     f.readline()
     tweets_bigram = []
     tweets_bigram_better = []
@@ -120,9 +121,9 @@ if __name__ == '__main__':
     bigram_probabilities = compute_bigram_probabilities()
 
     result = generate_tweet()
-    print(result.replace('<s> ', '').replace(' </s>', ''))
+    print("bi-gram model: ", result.replace('<s> ', '').replace(' </s>', ''))
 
     trigram_probabilities = compute_trigram_probabilities()
 
     result_trigram = generate_tweet_trigram()
-    print(result_trigram.replace('<s> ', '').replace(' </s>', ''))
+    print("tri-gram model: ", result_trigram.replace('<s> ', '').replace(' </s>', ''))
