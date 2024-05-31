@@ -32,12 +32,32 @@ class Frame:
                 return True
             return False
         else:
-            if keyword.lower() in [x.lower() for x in self.question.get_keywords()]:
-                self.current_keywords.add(keyword.lower())
-                self.check_frame_complete()
-                return True
-            else:
-                return False
+            for x in self.question.get_keywords():
+                # print(x, keyword)
+                if self.remove_article(keyword.lower()) == x.lower():
+                    # print("CORRECT!!!", keyword)
+                    self.current_keywords.add(x)
+                    self.check_frame_complete()
+                    return True
+            return False
+            # if self.remove_article(keyword.lower()) in [x.lower() for x in self.question.get_keywords()]:
+            #     print("CORRECT!!!", keyword)
+            #     self.current_keywords.add(self.remove_article(keyword.lower()))
+            #     self.check_frame_complete()
+            #     return True
+            # else:
+            #     return False
 
     def check_already_said(self, keyword):
         return keyword.lower() in self.current_keywords
+
+    def remove_article(self, keyword):
+        if 'a' in keyword.lower().split(' '):
+            keyword = keyword.replace('a ', '')
+        if 'the' in keyword.lower().split(' '):
+            keyword = keyword.replace('the ', '')
+        return keyword
+
+if __name__ == "__main__":
+    frame = Frame()
+    print(frame.remove_article("a golden tree"))

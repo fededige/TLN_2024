@@ -15,7 +15,7 @@ class Generator:
             subj = self.nlgFactory.createNounPhrase(subj)
             subj.addModifier(sbj_modifier)
         if obj_modifier is not None:
-            obj = self.nlgFactory.createNounPhrase("the " + obj)
+            obj = self.nlgFactory.createNounPhrase(obj)
             obj.addPreModifier(obj_modifier)
         if verb_modifier is not None:
             verb = self.nlgFactory.createVerbPhrase(verb)
@@ -74,10 +74,10 @@ class Generator:
                                                           random.choice(obj_modifiers_second_type), None,
                                                           random.choice(comment_list[1]), True)
             elif positivity == "mild":
-                answer = self.generate_answer_with_params(random.choice(mild_verbs_second_type), obj_second_type,
+                answer = self.generate_answer_with_params(random.choice(mild_verbs_second_type), random.choice(obj_second_type),
                                                           subject, None,
                                                           random.choice(mild_obj_modifiers_second_type), None,
-                                                          random.choice(comment_list[2]))
+                                                          random.choice(comment_list[2]), past=True)
         return answer
 
     def generate_result(self, score, positivity):

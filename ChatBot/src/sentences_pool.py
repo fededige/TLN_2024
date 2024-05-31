@@ -6,13 +6,12 @@ obj_second_type = ["response", "answer"]
 
 mild_verbs_second_type = ["answer", "provide", "give", "supply", "present"]
 
-mild_obj_modifiers_second_type = ["an incomplete", "a partial", "a lacking", "a limited"]
+mild_obj_modifiers_second_type = ["an incomplete", "a partial", "a limited"]
 
 obj_modifiers_second_type = [
     "the topic of",
     "the concept of",
     "the subject of",
-    ""
 ]
 
 verbs_first_type = [

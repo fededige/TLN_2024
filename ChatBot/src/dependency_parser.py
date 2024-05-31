@@ -1,4 +1,5 @@
 import spacy
+import questions_pool
 from spacytextblob.spacytextblob import SpacyTextBlob
 
 
@@ -90,10 +91,13 @@ def get_negativity(sentence):
 
 if __name__ == "__main__":
     parser = DependencyParser()
+    text = "generative."
+    parser.set_text(text)
+    print(parser.get_tokens())
 
-    sentences = ["Yes, it does", "No, it doesn\'t", "True", "False", "Yes", "maybe", "you're right", "no, false", "wrong", "wrong."]
-
-    for sentence in sentences:
-        parser.set_text(sentence)
-        sentiment = parser.get_polarity()
-        print(f"Sentence: {sentence} -- Sentiment: {sentiment}")
+    # for q in questions_pool.questions:
+    #
+    #     print(q.get_text())
+    #     print(parser.get_topic())
+    # sentiment = parser.get_polarity()
+    # print(f"Sentence: {sentence} -- Sentiment: {sentiment}")

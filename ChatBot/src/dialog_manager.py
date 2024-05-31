@@ -130,7 +130,11 @@ class DialogManager:
         new_answer = ""
         answer_tokens = []
         a = answer[:len(answer) - 1]
-        sentences = a.split('.') if '.' in a else answer
+        if '.' in a:
+            sentences = [f'{s}.' for s in a.split('.')]
+        else:
+            sentences = answer
+        # sentences = a.split('.') if '.' in a else answer
         for sentence in sentences:
             if not dependency_parser.get_negativity(sentence):
                 new_answer += sentence
