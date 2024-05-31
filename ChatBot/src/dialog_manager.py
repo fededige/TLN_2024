@@ -66,7 +66,10 @@ class DialogManager:
                 return
             self.frame.add_question(question)
             self.print_danny(question_text)
-            answer = self.clean_answer(input("Student: "))
+            input_s = input("Student: ")
+            if len(input_s) <= 0 or input_s == '':
+                continue
+            answer = self.clean_answer(input_s)
             self.prof_speaking = True
             if question.get_type() < 4:
                 answer_tokens = self.analyze_user_answer(answer)
