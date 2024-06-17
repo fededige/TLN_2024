@@ -156,6 +156,7 @@ if __name__ == '__main__':
     else:
         plot = [0.0] * (int((len(sentences) / block_size)) - 1)
 
+
     blocks = get_blocks(block_size, sentences)
 
     for i in range(len(blocks) - 1):
