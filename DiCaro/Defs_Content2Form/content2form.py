@@ -6,7 +6,9 @@ from nltk.corpus import wordnet as wn
 import math
 from nltk.tokenize import word_tokenize
 
-
+# Calcolo delle frequenze per ogni parola in defs,
+# restituisce le n_frequent_words più frequenti e il genus composto dagli n_genus nomi più frequenti.
+# remove_stopwords_flag indica se considerare le stopwords o meno
 def get_most_frequent(defs, n_frequent_words, n_genus, subject, remove_stopwords_flag=True):
     frequency = {}
     only_nouns = set()
@@ -42,7 +44,8 @@ def get_most_frequent(defs, n_frequent_words, n_genus, subject, remove_stopwords
             genus.append(word)
     return top_n_frequent_words, genus[:n_genus]
 
-
+# Recupera tutti i synsets delle parole del genus e dei loro iponimi e iperonimi con una profondità depth
+# consider_hyponym e consider_hypernym indicano se cercare o meno iponimi e iperonimi di un senso
 def get_wordnet_synsets(genus, depth=0, consider_hyponym=False, consider_hypernym=False):
     result = []
     for word in genus:
@@ -74,14 +77,14 @@ def get_wordnet_synsets(genus, depth=0, consider_hyponym=False, consider_hyperny
     result = list(set(result))
     return result
 
-
+# Recuperare per tutti i synset calcolati precedentemente le loro definizioni
 def get_wordnet_definition(synsets):
     result = {}
     for synset in synsets:
         result[synset.name()] = synset.definition()
     return result
 
-
+# Calcolo della similarità di jaccard per ogni synset, tra defs, cioè le definizioni in input e la synset_definition
 def jaccard_similarity(defs, synset_definitions):
     result = {}
     defs_string = ""
@@ -90,7 +93,7 @@ def jaccard_similarity(defs, synset_definitions):
     for synset in synset_definitions:
         definition = f" {synset_definitions[synset].strip().lower().translate(translator)} "
         intersection = set()
-        union = set([d for d in defs_string.split(' ')])
+        union = set([w for w in defs_string.split(' ')])
         for word in definition.split(' '):
             union.add(word)
             if word in defs_string.split(' '):
@@ -99,7 +102,8 @@ def jaccard_similarity(defs, synset_definitions):
         result[synset] = similarity
     return dict(sorted(result.items(), key=lambda item: item[1], reverse=True)[:10])
 
-
+# Costruisce la rappresentazione vettoriale per ogni synset e per le definizioni date in input,
+# viene calcolata la similarita mediante la cosine similarity tra e definizioni in input e ogni synset
 def get_cos_similarity(defs, genus, all_synset_definition):
     vector_defs = [0] * len(genus)
     vector_synset = [0] * len(genus)
@@ -121,7 +125,7 @@ def get_cos_similarity(defs, genus, all_synset_definition):
 
     result = {}
 
-    for element in vector_result.keys():
+    for element in vector_result:
         numerator = 0
         for i in range(len(vector_defs)):
             numerator += vector_defs[i] * vector_result[element][i]
@@ -139,11 +143,11 @@ def get_cos_similarity(defs, genus, all_synset_definition):
             result[element] = numerator / denominator
     return dict(sorted(result.items(), key=lambda item: item[1], reverse=True)[:10])
 
-
+# Estrae tutti i synset con similarità massima
 def get_final_synsets(values):
     synset_result = {}
     last_value = 0
-    for element in values.keys():
+    for element in values:
         if last_value == 0:
             synset_result[element] = values[element]
             last_value = values[element]
@@ -158,11 +162,12 @@ if __name__ == '__main__':
     stopword = stopwords.words('english')
     translator = str.maketrans('', '', string.punctuation)
     f = open("./TLN-definitions-24.csv", "r")
-    print(f.readline())
+    f.readline()
     pen = []
     cigarette = []
     cloud = []
     ontology = []
+    # pulizia delle definizioni in input
     for line in f.readlines():
         splitted_line = line.split('#')
         pen.append(splitted_line[1].replace('"', '').replace('\n', '').strip().lower().translate(translator))
@@ -205,5 +210,3 @@ if __name__ == '__main__':
     similarity = jaccard_similarity(most_frequent_word, all_synset_definition)
     print("cosine_similarity: ", get_final_synsets(cosine_similarity))
     print("jaccard_similarity: ", get_final_synsets(similarity))
-
-

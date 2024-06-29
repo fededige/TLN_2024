@@ -57,7 +57,7 @@ if __name__ == '__main__':
         ontology.append(splitted_line[4].replace('"', '').replace('\n', '').strip().lower().translate(translator))
 
     # threshold serve per prendere solo le parole che compaiono almeno nel (threshold * 100)% delle frasi
-    threshold = 0.5
+    threshold = 0.3
     print("Threshold utilizzato nell'esecuzione: ", threshold)
     print()
 

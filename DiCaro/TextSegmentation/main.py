@@ -123,26 +123,6 @@ def get_segments(block_size, real_minimums, sentences):
     return segments
 
 
-# def get_exact_cut(real_minimums, blocks):
-#     for minimum in real_minimums:
-#         new_block = []
-#         for s in blocks[minimum]:
-#             new_block.append(s)
-#         for s in blocks[minimum + 1]:
-#             new_block.append(s)
-#
-#         plot = [0.0] * (len(new_block) - 1)
-#
-#         for i in range(len(new_block) - 1):
-#             plot[i] = get_cohesion([new_block[i]], [new_block[i + 1]])
-#             print(plot[i])
-#             print("similarity between:")
-#             print("\t", new_block[i])
-#             print("and")
-#             print("\t", new_block[i + 1])
-#             print()
-
-
 if __name__ == '__main__':
     stopword = stopwords.words('english')
     translator = str.maketrans('', '', string.punctuation)
@@ -181,37 +161,3 @@ if __name__ == '__main__':
             print(s)
         print()
     print(len(segments))
-
-    # for i in range(len(blocks)):
-    #     print(blocks[i])
-    #     print(i)
-    #     print()
-
-
-    # test = get_exact_cut(real_minimums, blocks)
-
-    # segment_num = 0
-    # last_block = []
-    # for seg in segments:
-    #     plt.clf()
-    #     if len(seg) % block_size != 0:
-    #         plot = [0.0] * (int((len(seg) / block_size)))
-    #     else:
-    #         plot = [0.0] * (int((len(seg) / block_size)) - 1)
-    #     blocks = get_blocks(block_size, seg)
-    #     for i in range(len(blocks) - 1):
-    #         plot[i] = get_cohesion(blocks[i], blocks[i + 1])
-    #     if len(last_block) > 0:
-    #         plot.insert(0, get_cohesion(last_block, blocks[0]))
-    #     print(plot)
-    #     last_block = blocks[len(blocks) - 1]
-    #     minimums = argrelextrema(np.array(plot), np.less)[0].tolist()
-    #     real_minimums = get_real_minimums(minimums, plot, 0.05)
-    #     segments = get_segments(block_size, real_minimums, seg)
-    #     segment_num += 1
-    # plt.plot(range(len(plot)), plot)
-    # for minimum in real_minimums:
-    #     plt.axvline(x=minimum, color='r')
-    # plt.savefig(f"segment-{segment_num}.png")
-    # print()
-    # print()
